@@ -20,17 +20,50 @@ def weight_visualization():
 def relation_5_features():
     '''
         Define type of features for the plot:
-                consumption: continous
-                acceleration: continous
-                max speed: continous
-                bike type: discrete
-                weight : continous - turn discrete
+                consumption: continous - X axis
+                acceleration: continous - Y axis
+                max speed: continous - Size
+                bike type: discrete - Shape
+                weight : continous - turn discrete - Color
     :return:
     '''
     # import data
     df = obtain_dataset()
     # Turn discrete the weight
+    df['weight full'] = pd.cut(df['weight full'], bins=(0,140,160,1000), labels=['light', 'medium', 'heavy'])
+    # 5 feature plot
+    weight_to_color_dict = {
+        'light': 'red',
+        'medium': 'green',
+        'heavy': 'blue'
+    }
+    type_to_shape_dict = {
+        'Naked':'^',
+        'Sport':'o',
+        'Custom':'s',
+        'Scrambler':'p',
+        'Scooter':'*',
+        'Trail': 'P'
+    }
+
+    weight_to_color_func = lambda x: weight_to_color_dict[x]
+
+    for key in type_to_shape_dict.keys():
+        aux = df[df['bike type'] == key]
+        plt.scatter(
+            aux['consumption'], # x
+            aux['acceleration'], # Y
+            s=aux['max speed'], # Size
+            marker= type_to_shape_dict[key], # Shape
+            c=aux['weight full'].apply(weight_to_color_func) # Color
+        )
+
+    plt.title('5 feature visualization')
+    plt.xlabel('Consumption  (l/100km)')
+    plt.ylabel('Acceleration  0-100km (s)')
+    plt.legend()
+    plt.savefig('Images/5 feature visualization')
 
 
 
-weight_visualization()
+relation_5_features()
