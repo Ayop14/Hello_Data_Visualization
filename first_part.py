@@ -3,6 +3,7 @@ import pandas as pd
 from read_data import obtain_dataset
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+import numpy as np
 
 # Turn weight discrete. What are the different weight values? Lets see with a simple histogram
 def weight_visualization():
@@ -99,13 +100,52 @@ def relation_5_features():
 
     fig.savefig('Images/5 feature visualization initial')
 
+def log_info():
+    df = obtain_dataset()
+    acceleration = df['acceleration']
+
+    # log transformed acceleration
+    log_transformed_acceleration = np.log10(acceleration)
+
+    # Define figure
+    fig, axes = plt.subplots(3,1, )
 
 
-from matplotlib.patches import Patch
+    # deactivate y values
+    plt.tick_params(left=False)
+
+    for ax in axes:
+        # Horizontal line
+        ax.axhline(0, color='black', lw=1)
+        # Turn off surrounding box
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        # Move bottom axis above
+        ax.spines['bottom'].set_position(('data', 0))
+        # Set padding between ticks and labels
+        ax.tick_params(axis='x', pad=10)
+        # Disable yaxis labels (Not required)
+        ax.get_yaxis().set_visible(False)
+
+    # Plot normal values
+    axes[0].set_title('Original Acceleration, linear scale')
+    axes[0].scatter(acceleration, [0] * len(acceleration))
+
+    # Plot Log transformed values
+    axes[1].set_title('Log transformed Acceleration, linear scale')
+    axes[1].scatter(log_transformed_acceleration, [0] * len(acceleration))
+
+    # Plot Log scale values
+    axes[2].set_xscale('log')
+    axes[2].set_title('Original Acceleration, logarithmic scale')
+    axes[2].scatter(acceleration, [0] * len(acceleration))
 
 
+    # Adjust vertical padding
+    fig.subplots_adjust(hspace=1)  # adjust padding
+    # Save fig
+    fig.savefig('Images/Visualizing log acceleration initial')
 
 
-
-
-relation_5_features()
+log_info()
