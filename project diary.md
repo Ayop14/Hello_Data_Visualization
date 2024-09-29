@@ -39,3 +39,10 @@ An alternative for log scale, is root scale. Its mostly useful when data include
 
 The point of the figure is just displaying the comparation between the different transformation and scaled used, alongside showing different acceleration values. One simple conclusion we can get from the figure is the fact that values dont vary wildly, only one outlier. A bike that accelerates really slowly compared to the others. 
 
+
+
+### Polar Scale
+Using Polar coordinate system for time series visualization was new for me. Really simple way to visualize seasonality in the data.  I want to try my hand at a symple polar coordinate visualization. 
+
+Since I dont have any time-series related series, I will just use gasoline capacity feature, looking for any peaks in the "fake time series" to see if its possible to locate independent outliers this way.
+

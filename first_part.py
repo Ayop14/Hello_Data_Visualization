@@ -148,4 +148,51 @@ def log_info():
     fig.savefig('Images/Visualizing log acceleration initial')
 
 
-log_info()
+def polar_coordinate_visualization():
+    # obtain data
+    df = obtain_dataset()
+    capacity = df[['bike type', 'gasoline capacity']]
+
+    # Create a figure and a polar subplot
+    fig, axes = plt.subplots(2,2,figsize=(8,8), subplot_kw={'projection': 'polar'})
+
+    for x in range(2):
+        for y in range(2):
+            # Set label position
+            axes[x,y].set_rlabel_position(45)
+            # Turn on xticks, but without labels
+            axes[x,y].set_xticks([0, np.pi / 2, np.pi, 3 * np.pi / 2], [])
+
+            # Set height values
+            axes[x,y].tick_params(axis='y', pad=-1)
+            axes[x,y].set_yticks([5, 10, 15, 20])
+
+            # Optionally add gridlines and a title
+            axes[x,y].grid(True)
+
+    # First plot: One lap around the polar coordinate system
+    # Create angles from 0 to 4π (two times around)
+    angles = np.linspace(0, 2 * np.pi, len(capacity))
+    axes[0,0].plot(angles, capacity['gasoline capacity'], marker='o', markersize=4)
+    axes[0,0].set_title("Gasoline capacity - One lap")
+
+    # Second Plot: Two laps around the polar coordinate system
+    angles = np.linspace(0, 4 * np.pi, len(capacity))
+    axes[0,1].plot(angles, capacity['gasoline capacity'], marker='o', markersize=4)
+    axes[0,1].set_title("Gasoline capacity - Two laps")
+
+    # Third plot: Comparation against ech other bike type using line plot
+    for bike_type in capacity['bike type'].unique():
+        bike_type_capacities = capacity.loc[capacity['bike type'] == bike_type, 'gasoline capacity']
+        angles = np.linspace(0, 2 * np.pi, len(bike_type_capacities))
+        axes[1,0].plot(angles, bike_type_capacities, marker='o', markersize=4, label=bike_type)
+
+    axes[1,0].set_title("Gasoline capacity polar coordinate plot")
+    axes[1,0].legend()
+
+
+
+    fig.savefig('Images/Visualizing polar coordinates')
+
+
+polar_coordinate_visualization()
