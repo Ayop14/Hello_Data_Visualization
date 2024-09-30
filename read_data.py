@@ -6,7 +6,3 @@ def obtain_dataset():
     return df
 
 
-
-
-
-

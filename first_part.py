@@ -204,4 +204,44 @@ def polar_coordinate_visualization():
     fig.savefig('Images/Visualizing polar coordinates')
 
 
-polar_coordinate_visualization()
+def color_powerpoint():
+    # Obtain data
+    df = obtain_dataset()
+
+    # Create Scatterplot
+    fig, ax = plt.subplots()
+
+    # Scatterplot with torque, weight and seat height
+    scatter = ax.scatter(df['torque'], df['weight full'], c=df['seat height'], s=50)
+
+    # Add a colorbar to map colors to values
+    colorbar = plt.colorbar(scatter, ax=ax)
+    colorbar.set_label('Seat height (mm)')
+
+    # Add axis labels and title
+    ax.set_xlabel('Torque (Nm)')
+    ax.set_ylabel('Weight (kg)')
+    ax.set_title('Scatterplot with color-encoded continous variable')
+
+    # Save the figure
+    fig.savefig('Images/Visualizing color importance - scatterplot')
+
+
+    # Create a histogram comparison
+    fig, axes = plt.subplots(1,2, figsize=(12,4))
+
+    # Obtain/Filter data
+    df = df.loc[df['bike type']=='Naked', ['name', 'price']]
+
+    # Plot regular histogram
+    x_values = np.arange(len(df))
+    axes[0].bar(x_values, df['price'], color='blue')
+
+    # Set Xtick label values
+    axes[0].set_xticklabels(df['name'], rotation=45)
+
+    # Save figure
+    fig.savefig('Images/Visualizing histogram color effect')
+
+
+color_powerpoint()
