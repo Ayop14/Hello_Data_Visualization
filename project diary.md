@@ -46,3 +46,22 @@ Using Polar coordinate system for time series visualization was new for me. Real
 
 Since I dont have any time-series related series, I will just use gasoline capacity feature, looking for any peaks in the "fake time series" to see if its possible to locate independent outliers this way.
 
+Working on polar visualizations, it surprised me how it has a different way to work on it. Its not a "Special" visualization, you only change the coordinates system, rather than making a specific "Polar" visualization. 
+
+It has everything a plot has, labels, x,y axis (Changed, but they are there!)... The only thing I couldnt manage to do is moving tick labels. It is really prepared to just put them at a certain angle. I'd like to have them paralel to y axis, outside the polar plot, like in the book's figures. 
+
+Related to visualization details, tick label position is defined using set_rlabel_position. Then, to define a polar plot you need a radian list for each of the points x axis, and height values (the ones you actually want to plot). Another thing I learned with many different subplots, is that axis have a legend feature, you can change it from there rather than from figure. 
+
+Final conclusion around the figure, its that is not a great way to visualize non-tabular data. It looks cool and complex, but past that is just visual noise. A simple histogram, or 1D scatterplot is far simpler and makes a point with way less visual noise. So, the point of this figure, is to show to actually NOT use the figure, haha!
+
+The point of polar plots is to show **seasonal** data. For that matter I'd use a line plot like the first one, but make every interval (lap) from a different color, and label it. Wether it be year or monthly data.  
+
+
+### A powerpoint about color
+Color is interesting. It can be used for both continous (graded scale) and discrete data. Aditionally, it can help making the point of the visualization easier. 
+
+For this section I want to make 2 visualizations. One where color shows a continous variable (I already made a discrete color variable in the five feature visualization), and one where it actually helps making a point around a visualization. 
+
+First visualization is a scatterplot of 3 different dimmensions, using color for the third one. 
+
+Second viaualization will use color to make a point. The idea is to make a histogram of different values for a certain bike type. But, the point is to make how a certain bike compares to the others, not making a simple display about what the market has to offer. To see an after & before, I will make a simple histogram about a feature using discrete, random colors. Then the same histogram, but using a intense color only for the bike Im interested in comparing. 

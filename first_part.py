@@ -5,6 +5,16 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import numpy as np
 
+
+type_to_shape_dict = {
+        'Naked':'^',
+        'Sport':'o',
+        'Custom':'s',
+        'Scrambler':'p',
+        'Scooter':'*',
+        'Trail': 'P'
+    }
+
 # Turn weight discrete. What are the different weight values? Lets see with a simple histogram
 def weight_visualization():
     # Obtain data
@@ -44,14 +54,6 @@ def relation_5_features():
         'light': 'red',
         'medium': 'green',
         'heavy': 'blue'
-    }
-    type_to_shape_dict = {
-        'Naked':'^',
-        'Sport':'o',
-        'Custom':'s',
-        'Scrambler':'p',
-        'Scooter':'*',
-        'Trail': 'P'
     }
 
     weight_to_color_func = lambda x: weight_to_color_dict[x]
@@ -185,12 +187,19 @@ def polar_coordinate_visualization():
     for bike_type in capacity['bike type'].unique():
         bike_type_capacities = capacity.loc[capacity['bike type'] == bike_type, 'gasoline capacity']
         angles = np.linspace(0, 2 * np.pi, len(bike_type_capacities))
-        axes[1,0].plot(angles, bike_type_capacities, marker='o', markersize=4, label=bike_type)
+        axes[1,0].plot(angles, bike_type_capacities, marker=type_to_shape_dict[bike_type], markersize=4, label=bike_type)
 
-    axes[1,0].set_title("Gasoline capacity polar coordinate plot")
-    axes[1,0].legend()
+    axes[1,0].set_title("Gasoline capacity - Linear plot")
+    axes[1,0].legend(loc='lower right', bbox_to_anchor=(1.25, -0.2))
 
+    # Forth plot: Comparation against ech other bike type using line plot
+    for bike_type in capacity['bike type'].unique():
+        bike_type_capacities = capacity.loc[capacity['bike type'] == bike_type, 'gasoline capacity']
+        angles = np.linspace(0, 2 * np.pi, len(bike_type_capacities))
+        axes[1, 1].scatter(angles, bike_type_capacities, marker=type_to_shape_dict[bike_type], s=40, label=bike_type)
 
+    axes[1, 1].set_title("Gasoline capacity - Scatterplot")
+    axes[1, 1].legend(loc='lower right', bbox_to_anchor=(1.25, -0.2))
 
     fig.savefig('Images/Visualizing polar coordinates')
 
