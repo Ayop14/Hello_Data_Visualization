@@ -64,4 +64,12 @@ For this section I want to make 2 visualizations. One where color shows a contin
 
 First visualization is a scatterplot of 3 different dimmensions, using color for the third one. 
 
-Second viaualization will use color to make a point. The idea is to make a histogram of different values for a certain bike type. But, the point is to make how a certain bike compares to the others, not making a simple display about what the market has to offer. To see an after & before, I will make a simple histogram about a feature using discrete, random colors. Then the same histogram, but using a intense color only for the bike Im interested in comparing. 
+Second visualization will use color to make a point. The idea is to make a histogram of different values for a certain bike type. But, the point is to make how a certain bike compares to the others, not making a simple display about what the market has to offer. To see an after & before, I will make a simple histogram about a feature using discrete, random colors. Then the same histogram, but using a intense color only for the bike Im interested in comparing.
+
+One important detail I found is the color bar item for the scatterplot, as well as the parameter "edgecolor" for both visualizations. It makes it stand on its own better, more pleasing to see. Also, do not use set_xticklabels method. Works BAD. adjust_subplplots has amazing functionalities for overlapping features and changing overall spaces inside the visualization.  
+
+Final thoughts about these visualizations. The barplot should be sorted, but I will leave that for a future visualization error corrections section in this project. Regarding the bar plot comparison, it surprised me then (first time I read it) and it surprises me now once I implement it. Such a tiny detail changes the point of the visualizations from "Look at all these bikes" to "Look at how does this bike against the others".
+
+
+# Visuaizing different amounts
+The idea is to make simple, yet informative plots that display similarly equally ranged features, using a grouped bar plot, stacked bars. The point is to compare them against each other.  
