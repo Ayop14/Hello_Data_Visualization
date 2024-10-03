@@ -212,7 +212,7 @@ def color_powerpoint():
     fig, ax = plt.subplots()
 
     # Scatterplot with torque, weight and seat height
-    scatter = ax.scatter(df['torque'], df['weight full'], c=df['seat height'], s=50)
+    scatter = ax.scatter(df['torque'], df['weight full'], c=df['seat height'], s=50, edgecolor='k' )
 
     # Add a colorbar to map colors to values
     colorbar = plt.colorbar(scatter, ax=ax)
@@ -228,20 +228,77 @@ def color_powerpoint():
 
 
     # Create a histogram comparison
-    fig, axes = plt.subplots(1,2, figsize=(12,4))
+    fig, axes = plt.subplots(1,2, figsize=(14,4))
 
     # Obtain/Filter data
-    df = df.loc[df['bike type']=='Naked', ['name', 'price']]
+    df = df.loc[df['bike type']=='Trail', ['name', 'price']]
 
-    # Plot regular histogram
+    # Plot regular barplot
     x_values = np.arange(len(df))
-    axes[0].bar(x_values, df['price'], color='blue')
+    axes[0].bar(x_values, df['price'], color='blue', edgecolor='k')
 
     # Set Xtick label values
-    axes[0].set_xticklabels(df['name'], rotation=45)
+    axes[0].set_xticks(x_values, df['name'], rotation=20, fontsize=10)
+    # Set title
+    axes[0].set_title('Barplot comparing all Trail bikes prices')
+    axes[0].set_ylabel('Price (Euros)')
+
+    # Plot color variation barplot
+    df.loc[:,'colors'] = 'lightsteelblue'
+    df.loc[df['name'] == 'Montana XR1','colors'] = 'blue'
+    x_values = np.arange(len(df))
+    axes[1].bar(x_values, df['price'], color=df['colors'], edgecolor='k')
+
+    # Set Xtick label values
+    axes[1].set_xticks(x_values, df['name'], rotation=20, fontsize=10)
+    # Set title
+    axes[1].set_title('Barplot comparing Montana XR1 price against te others')
+
+
+    plt.tight_layout()
+    #plt.subplots_adjust(bottom=0.2)
 
     # Save figure
     fig.savefig('Images/Visualizing histogram color effect')
 
 
-color_powerpoint()
+def different_amounts_visualization():
+    # obtain data
+    df = obtain_dataset()
+
+    # Create plot
+    fig, axes = plt.subplots(1,3,figsize=(16,6))
+
+    # Set the positions for the bars on the x-axis
+    bar_width = 0.2  # Width of the bars
+
+    # Transform data for visualization
+    df = df.pivot_table(index='brand', columns='bike type', aggfunc='size', fill_value=0)
+    df = df.loc[['Honda', 'Kawasaki', 'Suzuki', 'Yamaha']]
+
+    n_categories = len(df.index)
+    n_subcategories = len(df.columns)
+    x = np.arange(n_categories)  # Positions for the groups (categories)
+
+    # Plot each subgroup in the bars, with slight shifts for each bar within a group
+    for i in range(n_subcategories):
+        axes[0].bar(x + i * bar_width, df.iloc[:, i], width=bar_width, label=df.columns[i])
+
+    # Set the x-axis labels and ticks
+    axes[0].set_xticks(x + bar_width * (n_subcategories - 1) / 2, df.index)  # Center the ticks
+
+    # Add labels and title
+    axes[0].set_xlabel('Bike Brand')
+    axes[0].set_ylabel('Quantity')
+    axes[0].set_title('Bike types divided by brands')
+
+    # Add legend for the subcategories
+    axes[0].legend(title='Bike type')
+
+    # Show the plot
+    plt.tight_layout()
+
+    plt.savefig('Images/Visualizing_different_amounts.png')
+
+
+different_amounts_visualization()

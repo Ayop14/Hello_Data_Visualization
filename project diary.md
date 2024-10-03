@@ -72,4 +72,6 @@ Final thoughts about these visualizations. The barplot should be sorted, but I w
 
 
 # Visuaizing different amounts
-The idea is to make simple, yet informative plots that display similarly equally ranged features, using a grouped bar plot, stacked bars. The point is to compare them against each other.  
+The idea is to make simple, yet informative plots that display similarly equally ranged features, using a grouped bar plot, stacked bars. The point is to compare them against each other.
+
+For all plots, the idea is to show how many bikes of each type each brand sells. 
