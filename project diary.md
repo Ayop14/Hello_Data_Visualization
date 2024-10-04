@@ -74,4 +74,13 @@ Final thoughts about these visualizations. The barplot should be sorted, but I w
 # Visuaizing different amounts
 The idea is to make simple, yet informative plots that display similarly equally ranged features, using a grouped bar plot, stacked bars. The point is to compare them against each other.
 
-For all plots, the idea is to show how many bikes of each type each brand sells. 
+For all plots, the idea is to show how many bikes of each type each brand sells. And then compare how do they dliver information.
+
+First thing that called my atention. There is no such thing as a "grouped bar" visualization in matplotlib. you just plot different bars manually. Same with stacked bars. There is a parameter "bottom" where you just move upwards the remaining bars. Same with the heatmap, there is no such thing as a heatmap. You use the imshow function, which takes a matrix as a input. 
+
+At the start of the project, I wondered where could stacked bars be better than grouped bars. By mere chance, I found it: whenever any of the values is 0. Heatmaps, although they are as quick to deliver information, I'd treat them more as a density plot. To see how a big group of variables relate among each other, rather than for showing a small amount of data. 
+
+The conclusion of the visualization is that... I should used grouped bars always for visualizing multiple amounts, but if in any case one variable is 0, then use stacked bars (Whenever the groups are small enough)
+
+
+

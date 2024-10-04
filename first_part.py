@@ -278,6 +278,9 @@ def different_amounts_visualization():
 
     n_categories = len(df.index)
     n_subcategories = len(df.columns)
+
+
+    # Create grouped bars plot
     x = np.arange(n_categories)  # Positions for the groups (categories)
 
     # Plot each subgroup in the bars, with slight shifts for each bar within a group
@@ -292,8 +295,43 @@ def different_amounts_visualization():
     axes[0].set_ylabel('Quantity')
     axes[0].set_title('Bike types divided by brands')
 
-    # Add legend for the subcategories
-    axes[0].legend(title='Bike type')
+
+    # Create stacked bars plot
+    # Initialize the bottom of the bars to zero (stacking from the bottom)
+    bottom = np.zeros(n_categories)
+
+    # Create the stacked bar chart
+    for i in range(n_subcategories):
+        axes[1].bar(x, df.iloc[:, i], bottom=bottom, label=df.columns[i])
+        bottom += df.iloc[:, i]  # Update the bottom position for stacking
+
+    # Set the x-axis ticks and labels
+    axes[1].set_xticks(x, df.index)
+
+    # Add labels and title
+    axes[1].set_xlabel('Bike Brand')
+    axes[1].set_ylabel('Quantity')
+    axes[1].set_title('Bike types divided by brand')
+
+
+    # Create Heatmap for last visualization
+    # Create the heatmap using imshow
+    cax = axes[2].imshow(df, cmap='viridis', aspect='auto')
+
+    # Set row and column labels
+    axes[2].set_xticks(np.arange(len(df.columns)), df.columns)
+    axes[2].set_yticks(np.arange(len(df.index)), df.index)
+
+    # Rotate the x-axis labels for better readability
+    plt.setp(axes[2].get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+
+    # Add a color bar to show the intensity scale
+    fig.colorbar(cax, ticks=np.arange(df.max(axis=None)+1))
+
+    # Set labels and title
+    axes[2].set_xlabel('Bike Brand')
+    axes[2].set_ylabel('Quantity')
+    axes[2].set_title('Bike types divided by brands')
 
     # Show the plot
     plt.tight_layout()
