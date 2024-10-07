@@ -4,6 +4,8 @@ from read_data import obtain_dataset
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import numpy as np
+import seaborn as sns
+from scipy.stats import probplot
 
 
 type_to_shape_dict = {
@@ -338,5 +340,97 @@ def different_amounts_visualization():
 
     plt.savefig('Images/Visualizing_different_amounts.png')
 
+def visualizing_single_distribution(feature):
+    # Obtain dataset
+    df = obtain_dataset()
 
-different_amounts_visualization()
+    # Create a 2,2 subplot
+    fig, axes = plt.subplots(2,2, figsize=(8,8))
+
+    # Create a histogram
+    axes[0,0].hist(df[feature], bins=15)
+
+    axes[0,0].set_title(f'Histogram of {feature}')
+    axes[0, 0].set_xlabel(f'{feature} values')
+    axes[0,0].set_ylabel('Value counts')
+
+
+    # Create density plot (With Seaborn!)
+    sns.kdeplot(df[feature], ax=axes[0,1], fill=True, color='steelblue', linewidth=2)
+
+    # Customize the plot
+    axes[0,1].set_title(f'Density Plot of {feature}', fontsize=14)
+    axes[0, 0].set_xlabel(f'{feature} values')
+    axes[0,1].set_ylabel('Density')
+
+
+
+    # Make a cumulative density plot
+    sorted_feature = np.sort(df[feature])
+
+
+    # Compute the cumulative values (normalized to 1)
+    cumulative_values = np.arange(1, len(sorted_feature) + 1) / len(sorted_feature)
+
+    # Plot the cumulative density function (CDF)
+    axes[1,0].step(sorted_feature, cumulative_values, color='steelblue')
+
+    # Set yticks manually
+    axes[1,0].set_yticks(np.arange(0.2,1.2,0.2))
+
+    # Customize the plot with title and labels
+    axes[1,0].set_title(f'Cumulative Density Plot of {feature}')
+    axes[1,0].set_xlabel(f'{feature} values')
+    axes[1,0].set_ylabel('Cumulative Density')
+
+
+
+    # Make a quantile quantile plot
+    # Remove null values
+    clean_feature = df.loc[df[feature].notnull(), feature]
+    # Generate Q-Q plot data using scipy's probplot function
+    (theoretical_quantiles, sample_quantiles), (slope, intercept, _) = probplot(clean_feature, dist="norm")
+
+    # Plot the Q-Q plot (theoretical quantiles vs. sample quantiles)
+    axes[1,1].scatter(theoretical_quantiles, sample_quantiles, color='blue', label='Sample Quantiles')
+
+    # Plot the 45-degree line using the slope and intercept from probplot
+    axes[1,1].plot(theoretical_quantiles, slope * theoretical_quantiles + intercept, color='red', linestyle='--', label='y = x (reference)')
+
+    # Set a grid for clearer visualization
+    axes[1,1].grid(True)
+
+    # Customize the plot with title and labels
+    axes[1,1].set_title(f'Q-Q Plot of {feature}')
+    axes[1,1].set_xlabel('Theoretical Quantiles')
+    axes[1,1].set_ylabel('Sample Quantiles')
+    
+
+    plt.tight_layout()
+    fig.savefig('Images/Visualizing_single_distribution.png')
+
+
+    # 2 Figure: Comparing Histogram parameters
+    fig, axes = plt.subplots(4,4, figsize=(10,10), sharey=True)
+
+    for i, ax in enumerate(axes.flatten()):
+        # Create a histogram
+        ax.hist(df[feature], bins=2 * i + 1)
+
+        # Set title
+        ax.set_title(f'Bins: {2*i + 1}')
+
+        # Turn off axis labels to declutter the grid
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+    fig.suptitle(f'Histogram bin size comparison for {feature}', fontsize=14)
+
+    fig.tight_layout()
+    fig.savefig('Images/Visualizing_single_distribution_hist_params.png')
+
+    # 3 Figure: Comparing Density plot parameters
+
+
+
+visualizing_single_distribution('seat height')

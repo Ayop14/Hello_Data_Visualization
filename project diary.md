@@ -71,7 +71,7 @@ One important detail I found is the color bar item for the scatterplot, as well 
 Final thoughts about these visualizations. The barplot should be sorted, but I will leave that for a future visualization error corrections section in this project. Regarding the bar plot comparison, it surprised me then (first time I read it) and it surprises me now once I implement it. Such a tiny detail changes the point of the visualizations from "Look at all these bikes" to "Look at how does this bike against the others".
 
 
-# Visuaizing different amounts
+# Visulizing different amounts
 The idea is to make simple, yet informative plots that display similarly equally ranged features, using a grouped bar plot, stacked bars. The point is to compare them against each other.
 
 For all plots, the idea is to show how many bikes of each type each brand sells. And then compare how do they dliver information.
@@ -82,5 +82,9 @@ At the start of the project, I wondered where could stacked bars be better than 
 
 The conclusion of the visualization is that... I should used grouped bars always for visualizing multiple amounts, but if in any case one variable is 0, then use stacked bars (Whenever the groups are small enough)
 
+# Visualizing a single distribution
 
+There are 4 ways to visualize a distribution in detail: Histogram, Density plots, quantile-quantile plots and cumulative densty. The idea is to make a side by side visualization for all these types of visualizations. 
+
+Aditionally, I want to experiment with the shortcommings of each of these visualizations. Hitograms and density plots are easy to understand, but they depend on parameters (bin width, and kernel density estimator respectively) that might cause distrtion on the data. On the latter two, they are harder to understand, but they do not depend on any parameters.  
 
