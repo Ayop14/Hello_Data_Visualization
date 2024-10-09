@@ -1,6 +1,8 @@
 # Project diary
 the idea is to write down things that acme to mind while making certain parts of the project. This will make easier returning to the project about how did I acomplished certain requirement.
 
+As a Junior, Im also experimenting with diferent types of codings. In the middle of the project, I decided to start making the visualization code more appealing, easier to read, or to reuse the code in some other project, isolating the visualization code inside another method. That will allow the repository to be a visualization repository as well. 
+
 ## First part
 ### Five feature visualization
 First thing that called my atention was the fact 5 fetures could be visualized at the same time in a scatterplot. They are often not useful, but it can be helpful to know how could they be made.
@@ -84,7 +86,19 @@ The conclusion of the visualization is that... I should used grouped bars always
 
 # Visualizing a single distribution
 
-There are 4 ways to visualize a distribution in detail: Histogram, Density plots, quantile-quantile plots and cumulative densty. The idea is to make a side by side visualization for all these types of visualizations. 
+There are 4 ways to visualize a distribution in detail: Histogram, Density plots, quantile-quantile plots and cumulative density. The idea is to make a side by side visualization for all these types of visualizations. 
 
-Aditionally, I want to experiment with the shortcommings of each of these visualizations. Hitograms and density plots are easy to understand, but they depend on parameters (bin width, and kernel density estimator respectively) that might cause distrtion on the data. On the latter two, they are harder to understand, but they do not depend on any parameters.  
+Aditionally, I want to experiment with the shortcommings of each of these visualizations. Histograms and density plots are easy to understand, but they depend on parameters (bin width, and kernel density estimator respectively) that might cause distrtion on the data. On the latter two, they are harder to understand, but they do not depend on any parameters. 
+
+While working on visualizations, I learned a few things. Histograms are as easy to make as they look. Hist named method, give data, and number of bins. Give labels a value and thats it. 
+
+On the other hand, matplotlib does not have native support for density plots though. You can calculate them on your own, or use **seaborn**! This makes it easy to do and has native support to work with matplotlib. 
+
+Next, for a cumulative plot its not as easy as making the acum operation. As the values in between, will be filled with a slope. You need the "Step" function. Once that is clear, the visualization is easy as matplotlib has native support for this visualization.
+
+Quantile Quantile plots do not have native support in matplotlib. Seaborn offers a similar function, but looks more like a regular scatterplot. Its better to use scipy for that matter. With the math covered, its easier to make manually the plot. 
+
+Finally, the histogram parameter comaprison. The number of bins shown. As the number increases, the bins are progresively thinner to a point where they look sparce. Too low and it gives the impression there is data where there truly isnt. Too little bins and the sparcity prevents from obtaining useful information. Aditionally, There is also a kernel estimator parameter for density plots. However, gaussian plot is so commonly used many libraries (Like seaborn) does not offer a kernel alternative. I could implement it on my own, but there is truly no necessity. 
+
+
 
