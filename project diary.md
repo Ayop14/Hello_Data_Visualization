@@ -98,7 +98,22 @@ Next, for a cumulative plot its not as easy as making the acum operation. As the
 
 Quantile Quantile plots do not have native support in matplotlib. Seaborn offers a similar function, but looks more like a regular scatterplot. Its better to use scipy for that matter. With the math covered, its easier to make manually the plot. 
 
-Finally, the histogram parameter comaprison. The number of bins shown. As the number increases, the bins are progresively thinner to a point where they look sparce. Too low and it gives the impression there is data where there truly isnt. Too little bins and the sparcity prevents from obtaining useful information. Aditionally, There is also a kernel estimator parameter for density plots. However, gaussian plot is so commonly used many libraries (Like seaborn) does not offer a kernel alternative. I could implement it on my own, but there is truly no necessity. 
+Finally, the histogram parameter comaprison. The number of bins shown. As the number increases, the bins are progresively thinner to a point where they look sparce. Too low and it gives the impression there is data where there truly isnt. Too little bins and the sparcity prevents from obtaining useful information. Aditionally, There is also a kernel estimator parameter for density plots. However, gaussian plot is so commonly used many libraries (Like seaborn) does not offer a kernel alternative. I could implement it on my own, but there is truly no necessity.
+Regarding histogram parameters, in this case I'd use 19 bins. It allows for the balance previously mentioned. 
 
 
+# Visualizing multiple distributions
 
+There are multiple ways to visualize and compare distributions that relate two variable values:
+- Boxplots
+- Violin plots
+- Strip charts
+- Sina plots (Similar to strip plots. But using jamming to visualize data density in a certain point in a distribution. Slighly more visually appealing when enough data is available. COnsither them amix between violin plots and strip charts)
+- Stacked histograms (Bad for comparation. Not recomended its use, and wont be implemented in)
+- Overlapping densities
+- Comparing density plots (Plot each individual distribution, in front of overall distribution that resumes both variables)
+- Age pyramids
+
+The idea is to make a plot with all of them to train in data visualization, and comparing results.
+
+The distributions will be about how consumption changes related to the type of bike.  

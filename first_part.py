@@ -512,7 +512,76 @@ def visualizing_single_distribution(feature):
 
 
 def visualizing_multiple_distributions():
-    pass
+    def box_plot(distributions, ax):
+        # Plot the boxplot with the data
+        ax.boxplot(distributions, labels=[distribution.name for distribution in distributions],
+                   meanline=None, # If showmeans=True, show mean as a line spanning the full width of the box
+                   showmeans=None, # Show the arithmetic means
+                   showcaps=None, # Caps at the end of the whiskers
+                   showbox=None, # Show the central box
+                   showfliers=None) # Show the outliers beyond the caps
+        # Rotate labels
+        ax.set_xticks([i + 1 for i in range(len(distributions))], [distribution.name for distribution in distributions], rotation=45)
+
+        # Add title and labels
+        ax.set_title('Boxplot of Multiple Distributions')
+        ax.set_ylabel('Values')
+
+    def violin_plot(distributions, ax):
+        # Plot the violin plot
+        ax.violinplot(distributions,
+                      showmeans=False,
+                      showextrema=True,
+                      showmedians=False,
+                      quantiles=None)
+
+        # Set the labels for the x-axis
+        ax.set_xticks([i + 1 for i in range(len(distributions))], [distribution.name for distribution in distributions], rotation=45)
+
+        # Add title and labels
+        ax.set_title('Violin Plot of Multiple Distribution')
+        ax.set_ylabel('Values')
+
+    def strip_chart(distributions, ax, jittering_strength=0.1):
+
+        # Plot each of the distributions
+        for i, distribution in enumerate(distributions):
+            jittering = np.random.uniform(-jittering_strength, jittering_strength, size=len(distribution))
+            ax.scatter(np.ones(len(distribution)) * (i+1) + jittering, distribution, color='blue', alpha=0.7, s=40)
+
+        # Set the labels for the x-axis
+        ax.set_xticks([i+1 for i in range(len(distributions))], [distribution.name for distribution in distributions], rotation=45)
+
+        # Add title and labels
+        ax.set_title('Strip Chart of Multiple Distributions')
+        ax.set_ylabel('Values')
+
+    def overlapping_densities():
+        pass
+
+    def density_plot_comparation():
+        pass
+
+    def age_pyramid():
+        pass
 
 
-visualizing_single_distribution('seat height')
+    df = obtain_dataset()
+    # Pivot data so bike types are column names, and consumption are values
+    df = df.pivot(columns='bike type', values='consumption')
+
+    # Clean nulls from the data
+    cleaned_data = [df[col].dropna() for col in df.columns]
+
+    fig, axes = plt.subplots(2,4, figsize=(16,8))
+
+    box_plot(cleaned_data, axes[0,0])
+
+    violin_plot(cleaned_data, axes[0,1])
+
+    strip_chart(cleaned_data, axes[0,2], jittering_strength=0.125)
+
+    fig.savefig('Images/Visualizing_multiple_distributions.png')
+
+
+visualizing_multiple_distributions()
