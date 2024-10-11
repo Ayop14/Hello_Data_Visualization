@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import numpy as np
 import seaborn as sns
-from scipy.stats import probplot
+from scipy.stats import probplot, gaussian_kde
 
 
 type_to_shape_dict = {
@@ -221,8 +221,6 @@ def polar_coordinate_visualization():
     df = obtain_dataset()
     polar(df['gasoline capacity'], df['bike type'], type_to_shape_dict, 'Images/Visualizing polar coordinates')
 
-
-
 def color_powerpoint():
     def color_scatterplot(df_1, df_2, df_3, store):
         '''
@@ -299,7 +297,6 @@ def color_powerpoint():
     # Histogram comparison
     aux = df.loc[df['bike type'] == 'Trail', ['name', 'price']]
     histogram_color_comparison(aux['price'], aux['name'],1, 'Images/Visualizing histogram color effect')
-
 
 def different_amounts_visualization():
     def grouped_bars_plot(matrix_data, ax):
@@ -556,8 +553,60 @@ def visualizing_multiple_distributions():
         ax.set_title('Strip Chart of Multiple Distributions')
         ax.set_ylabel('Values')
 
-    def overlapping_densities():
-        pass
+    def sina_plot(distributions, ax, jittering_strength=0.1):
+        def density_based_jitter(data):
+            # Obtain density
+            kde = gaussian_kde(data)
+            densities = kde(data)
+            # Normalize densities to range between 0 and 0.3
+            densities = (densities - densities.min()) / (densities.max() - densities.min())
+            # Jittering inversely proportional to density (higher density -> larger jitter)
+            jitter = np.random.uniform(-1, 1, size=len(data)) * densities * jittering_strength
+            return jitter
+
+        # Violin plot
+        ax.violinplot(distributions,
+                      positions=np.arange(len(distributions)) + 1,
+                      showmeans=False,
+                      showextrema=True,
+                      showmedians=False,
+                      quantiles=None)
+
+        # Strip chart
+        # Plot each of the distributions
+        for i, distribution in enumerate(distributions):
+            jittering = density_based_jitter(distribution)
+            ax.scatter(np.ones(len(distribution)) * (i+1) + jittering, distribution, color='blue', alpha=0.7, s=30)
+
+        # Set the labels for the x-axis
+        ax.set_xticks([i + 1 for i in range(len(distributions))], [distribution.name for distribution in distributions],
+                      rotation=45)
+
+        ax.set_title('Sina Plot with Density-Based Jitter')
+        ax.set_ylabel('Values')
+
+    def overlapping_densities(distrib1, distrib2, ax1, ax2):
+        # Join the yaxis
+        axes[1, 0].get_shared_y_axes().join(axes[1, 0], axes[1, 1], axes[1, 2])
+
+        # Obtain general distribution
+        distribution = pd.concat([distrib1, distrib2])
+
+        # Plot general distribution in both axes:
+        # Create density plot (With Seaborn!)
+        sns.kdeplot(distribution, ax=ax1, fill=True, color='lightgrey', linewidth=2, label='Full distribution')
+        sns.kdeplot(distribution, ax=ax2, fill=True, color='lightgrey', linewidth=2, label='Full distribution')
+
+        # Plot each individual subdistribution
+        sns.kdeplot(distrib1, ax=ax1, fill=True, color='green', linewidth=2, label=distrib1.name)
+        sns.kdeplot(distrib2, ax=ax2, fill=True, color='yellow', linewidth=2, label=distrib2.name)
+
+        # Customize the plot
+        # Add a shared title between subplots [1,0] and [1,1]
+        fig.text(0.23, 0.4, "Shared Title for Plots [1,0] and [1,1]", ha='center', va='center', fontsize=14)
+        #ax1.set_xlabel(f'{feature} values')
+        #ax.set_ylabel('Density')
+
 
     def density_plot_comparation():
         pass
@@ -580,6 +629,10 @@ def visualizing_multiple_distributions():
     violin_plot(cleaned_data, axes[0,1])
 
     strip_chart(cleaned_data, axes[0,2], jittering_strength=0.125)
+
+    sina_plot(cleaned_data, axes[0,3], jittering_strength=0.25)
+
+    overlapping_densities(cleaned_data[1], cleaned_data[4], axes[1,0], axes[1,1])
 
     fig.savefig('Images/Visualizing_multiple_distributions.png')
 

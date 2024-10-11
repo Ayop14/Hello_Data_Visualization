@@ -108,7 +108,7 @@ There are multiple ways to visualize and compare distributions that relate two v
 - Boxplots
 - Violin plots
 - Strip charts
-- Sina plots (Similar to strip plots. But using jamming to visualize data density in a certain point in a distribution. Slighly more visually appealing when enough data is available. COnsither them amix between violin plots and strip charts)
+- Sina plots (Combination of strip and sina plots. You can find a variation where the jittering depends on density. So points in higher density points have increasingly more jitter than outliers, imitating the violin plot outline)
 - Stacked histograms (Bad for comparation. Not recomended its use, and wont be implemented in)
 - Overlapping densities
 - Comparing density plots (Plot each individual distribution, in front of overall distribution that resumes both variables)
@@ -117,3 +117,20 @@ There are multiple ways to visualize and compare distributions that relate two v
 The idea is to make a plot with all of them to train in data visualization, and comparing results.
 
 The distributions will be about how consumption changes related to the type of bike.  
+
+An interesting detail I want to share before I forget. Shared y axis in subplots. It is possible to share x and y axis by row or column, but you can share in a customized way pretty easily:
+# Manually share the y-axis between [1, 0], [1, 1], and [1, 2]
+axes[1, 0].get_shared_y_axes().join(axes[1, 0], axes[1, 1], axes[1, 2])
+
+Also, to make a custom plot (occupies multiples subplots) You  gotta define a figure and a gridspec independently, and then create each of the axis:
+        def create_custom_subplot():
+            # Create a grid with 2 rows and 4 columns
+            fig = plt.figure(figsize=(8, 6))
+            gs = fig.add_gridspec(2, 4)
+
+            axes = []
+
+            for i in range(2):
+                for j in range(4):
+                    # First subplot (occupies the top left cell)
+                    axes.append(fig.add_subplot(gs[0, 0:2]))
