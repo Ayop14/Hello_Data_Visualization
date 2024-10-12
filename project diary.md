@@ -120,7 +120,7 @@ The distributions will be about how consumption changes related to the type of b
 
 An interesting detail I want to share before I forget. Shared y axis in subplots. It is possible to share x and y axis by row or column, but you can share in a customized way pretty easily:
 # Manually share the y-axis between [1, 0], [1, 1], and [1, 2]
-axes[1, 0].get_shared_y_axes().join(axes[1, 0], axes[1, 1], axes[1, 2])
+ax1.sharey(ax2, ax3)
 
 Also, to make a custom plot (occupies multiples subplots) You  gotta define a figure and a gridspec independently, and then create each of the axis:
         def create_custom_subplot():

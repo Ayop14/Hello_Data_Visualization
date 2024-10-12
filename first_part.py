@@ -585,9 +585,10 @@ def visualizing_multiple_distributions():
         ax.set_title('Sina Plot with Density-Based Jitter')
         ax.set_ylabel('Values')
 
-    def overlapping_densities(distrib1, distrib2, ax1, ax2):
+    def desity_plot_comparison(distrib1, distrib2, ax1, ax2):
         # Join the yaxis
-        axes[1, 0].get_shared_y_axes().join(axes[1, 0], axes[1, 1], axes[1, 2])
+        # Optionally share y-axis between more subplots
+        ax1.sharey(ax2)
 
         # Obtain general distribution
         distribution = pd.concat([distrib1, distrib2])
@@ -597,19 +598,49 @@ def visualizing_multiple_distributions():
         sns.kdeplot(distribution, ax=ax1, fill=True, color='lightgrey', linewidth=2, label='Full distribution')
         sns.kdeplot(distribution, ax=ax2, fill=True, color='lightgrey', linewidth=2, label='Full distribution')
 
-        # Plot each individual subdistribution
-        sns.kdeplot(distrib1, ax=ax1, fill=True, color='green', linewidth=2, label=distrib1.name)
-        sns.kdeplot(distrib2, ax=ax2, fill=True, color='yellow', linewidth=2, label=distrib2.name)
+        # Obtain density scaling factor for each distribution
+        scale_factor1 = len(distrib1) / len(distribution)
+        scale_factor2 = 1 - scale_factor1
+
+        # For distribution1:
+        kde_distrib1 = gaussian_kde(distrib1)
+
+        # Generate the X values for the kde plot
+        x_vals = np.linspace(distrib1.min()-1, distrib1.max()+1, 100)
+        y_vals = kde_distrib1(x_vals)
+
+        # Plot the distribution 1, scaled down by the factor
+        ax1.fill_between(x_vals, y_vals * scale_factor1, color='blue', alpha=0.6, linewidth=3)
+        ax1.set_title(f'{distrib1.name} Distribution')
+
+        # For distribution2:
+        kde_distrib2 = gaussian_kde(distrib2)
+
+        # Generate the X values for the kde plot
+        x_vals = np.linspace(distrib2.min() -1, distrib2.max()+1, 100)
+        y_vals = kde_distrib2(x_vals)
+
+        # Plot the distribution 2, scaled down by the factor
+        ax2.fill_between(x_vals, y_vals * scale_factor2, color='blue', alpha=0.6, linewidth=3)
+        ax2.set_title(f'{distrib2.name} Distribution')
 
         # Customize the plot
-        # Add a shared title between subplots [1,0] and [1,1]
-        fig.text(0.23, 0.4, "Shared Title for Plots [1,0] and [1,1]", ha='center', va='center', fontsize=14)
-        #ax1.set_xlabel(f'{feature} values')
-        #ax.set_ylabel('Density')
+        # Add a shared title for the subplots
+        fig.text(0.275, 0.48, "Distribution comparison", ha='center', va='center', fontsize=14)
+        ax1.set_ylabel(f'Scaled density')
+        ax2.set_ylabel('Scaled Density')
 
 
-    def density_plot_comparation():
-        pass
+    def overlapping_density_plot(distrib1, distrib2, ax):
+
+        # Plot both distributions in ax:
+        # Create density plot (With Seaborn!)
+        sns.kdeplot(distrib1, ax=ax, fill=True, color='blue', linewidth=2, label=distrib1.name)
+        sns.kdeplot(distrib2, ax=ax, fill=True, color='orange', linewidth=2, label=distrib2.name)
+
+        ax.set_title('Overlapping density plot')
+        ax.set_ylabel('Density')
+        ax.set_xlabel('values')
 
     def age_pyramid():
         pass
@@ -632,7 +663,11 @@ def visualizing_multiple_distributions():
 
     sina_plot(cleaned_data, axes[0,3], jittering_strength=0.25)
 
-    overlapping_densities(cleaned_data[1], cleaned_data[4], axes[1,0], axes[1,1])
+    desity_plot_comparison(cleaned_data[1], cleaned_data[4], axes[1,0], axes[1,1])
+
+    overlapping_density_plot(cleaned_data[1], cleaned_data[4], axes[1, 2])
+
+    fig.tight_layout()
 
     fig.savefig('Images/Visualizing_multiple_distributions.png')
 
