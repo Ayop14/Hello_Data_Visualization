@@ -116,7 +116,13 @@ There are multiple ways to visualize and compare distributions that relate two v
 
 The idea is to make a plot with all of them to train in data visualization, and comparing results.
 
-The distributions will be about how consumption changes related to the type of bike.  
+The distributions will be about how consumption changes related to the type of bike. Except for the age pyramid. To make it more visually appealing and use more data, analyse price depending on weight value. 
+
+Doing these visualizations I learned a lot. I want to divide them individually:
+
+The boxplot was surprisingly easy to make. Its directly implemented in matplotlib, and its highly customizable. Only worry about label rotation.
+
+
 
 An interesting detail I want to share before I forget. Shared y axis in subplots. It is possible to share x and y axis by row or column, but you can share in a customized way pretty easily:
 # Manually share the y-axis between [1, 0], [1, 1], and [1, 2]

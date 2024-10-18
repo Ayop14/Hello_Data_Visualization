@@ -17,6 +17,15 @@ type_to_shape_dict = {
         'Trail': 'P'
     }
 
+type_to_color = {
+        'Naked':'steelblue',
+        'Sport':'darkorange',
+        'Custom': 'goldenrod',
+        'Scrambler':'crimson',
+        'Scooter':'ForestGreen',
+        'Trail': 'darkviolet'
+    }
+
 # Turn weight discrete. What are the different weight values? Lets see with a simple histogram
 def weight_visualization():
     # Obtain data
@@ -628,27 +637,62 @@ def visualizing_multiple_distributions():
         # Add a shared title for the subplots
         fig.text(0.275, 0.48, "Distribution comparison", ha='center', va='center', fontsize=14)
         ax1.set_ylabel(f'Scaled density')
+        ax1.set_xlabel('Values')
         ax2.set_ylabel('Scaled Density')
+        ax2.set_xlabel('Values')
 
 
-    def overlapping_density_plot(distrib1, distrib2, ax):
+    def overlapping_density_plot(distributions, ax):
 
         # Plot both distributions in ax:
         # Create density plot (With Seaborn!)
-        sns.kdeplot(distrib1, ax=ax, fill=True, color='blue', linewidth=2, label=distrib1.name)
-        sns.kdeplot(distrib2, ax=ax, fill=True, color='orange', linewidth=2, label=distrib2.name)
+        for distribution in distributions:
+            sns.kdeplot(distribution, ax=ax, fill=True, color=type_to_color[distribution.name], linewidth=2, label=distribution.name)
 
+        ax.legend(fontsize='small', loc='upper left')
         ax.set_title('Overlapping density plot')
         ax.set_ylabel('Density')
-        ax.set_xlabel('values')
+        ax.set_xlabel('Values')
 
-    def age_pyramid():
-        pass
+    def age_pyramid_plot(data1, data2, number_of_groups, ax):
+        def separate_groups():
+            # Create the different bins
+            bins = np.linspace(min(data1.min(), data2.min()), max(data1.max(), data2.max()), number_of_groups + 1)
+            # Bin data1 and order by bin (index)
+            separated_data1 = pd.cut(data1, bins).value_counts().sort_index()
+            # Bin data2 and order by bin (index)
+            separated_data2 = pd.cut(data2, bins).value_counts().sort_index()
 
+            # Change bin index name for clarity
+            index_names = [f'({int(interval.left)}, {int(interval.right)}]' for interval in separated_data1.index]
+            separated_data1. index = index_names
+            separated_data2.index = index_names
 
-    df = obtain_dataset()
+            return separated_data1, separated_data2
+
+        # Separate data into bins
+        separated_data1, separated_data2 = separate_groups()
+
+        ax.barh(separated_data1.index, -1 * separated_data1, color='blue', label='<140 kg')
+
+        # Plot female data with positive values (right side)
+        ax.barh(separated_data2.index, separated_data2, color='red', label='>=140 kg')
+
+        # Add labels and title
+        ax.set_title('Age Pyramid')
+        ax.set_xlabel('Price range Count')
+
+        # Add grid and legend
+        ax.grid(True, which='major', axis='x', linestyle='--')
+        ax.legend()
+
+        # Remove x-ticks on the negative side and format labels correctly
+        ax.set_xticklabels([f'{int(abs(tick))}' for tick in ax.get_xticks()])
+        ax.set_xlabel('Values')
+
+    full_df = obtain_dataset()
     # Pivot data so bike types are column names, and consumption are values
-    df = df.pivot(columns='bike type', values='consumption')
+    df = full_df.pivot(columns='bike type', values='consumption')
 
     # Clean nulls from the data
     cleaned_data = [df[col].dropna() for col in df.columns]
@@ -665,7 +709,9 @@ def visualizing_multiple_distributions():
 
     desity_plot_comparison(cleaned_data[1], cleaned_data[4], axes[1,0], axes[1,1])
 
-    overlapping_density_plot(cleaned_data[1], cleaned_data[4], axes[1, 2])
+    overlapping_density_plot(cleaned_data, axes[1, 2])
+
+    age_pyramid_plot(full_df.loc[full_df['weight full'] < 140, 'price'], full_df.loc[full_df['weight full'] >= 140, 'price'], 10, axes[1,3])
 
     fig.tight_layout()
 
