@@ -6,7 +6,7 @@ from matplotlib.lines import Line2D
 import numpy as np
 import seaborn as sns
 from scipy.stats import probplot, gaussian_kde
-
+from joypy import joyplot
 
 type_to_shape_dict = {
         'Naked':'^',
@@ -520,7 +520,7 @@ def visualizing_single_distribution(feature):
 def visualizing_multiple_distributions():
     def box_plot(distributions, ax):
         # Plot the boxplot with the data
-        ax.boxplot(distributions, labels=[distribution.name for distribution in distributions],
+        ax.boxplot(distributions, tick_labels=[distribution.name for distribution in distributions],
                    meanline=None, # If showmeans=True, show mean as a line spanning the full width of the box
                    showmeans=None, # Show the arithmetic means
                    showcaps=None, # Caps at the end of the whiskers
@@ -687,7 +687,7 @@ def visualizing_multiple_distributions():
         ax.legend()
 
         # Remove x-ticks on the negative side and format labels correctly
-        ax.set_xticklabels([f'{int(abs(tick))}' for tick in ax.get_xticks()])
+        ax.set_xticks([int(abs(tick)) for tick in ax.get_xticks()])
         ax.set_xlabel('Values')
 
     full_df = obtain_dataset()
@@ -716,6 +716,50 @@ def visualizing_multiple_distributions():
     fig.tight_layout()
 
     fig.savefig('Images/Visualizing_multiple_distributions.png')
+
+    # Clean plot
+    plt.clf()
+
+    # Create the ridgeline plot
+    plt.figure(figsize=(10, 6))
+    joyplot(cleaned_data, overlap=0.4, figsize=(8, 6), colormap=plt.cm.Spectral)
+
+    # Add a legend manually
+    legend_elements = [Line2D([], [], color=type_to_color[type.name], label=type.name, markersize=5, lw=8) for type in cleaned_data]
+
+    # Customize and show plot
+    plt.title('Ridgeline Plot')
+    plt.tight_layout()
+    plt.savefig('Visualizing_multiple_distributions_ridgelineplot.png')
+
+
+def proportions_visualization():
+
+    def piechart():
+        pass
+
+    def vertical_barplot():
+        pass
+
+    def horizontal_barplot():
+        pass
+
+    def stackedbar_plot():
+        pass
+
+
+
+    # obtain data
+    df = obtain_dataset()
+    # Transform data for visualization
+    df = df.pivot_table(index='brand', columns='bike type', aggfunc='size', fill_value=0)
+    df = df.loc[['Honda', 'Kawasaki', 'Suzuki', 'Yamaha']]
+
+    # Create plot
+    fig, axes = plt.subplots(1, 4, figsize=(16, 6))
+
+
+
 
 
 visualizing_multiple_distributions()

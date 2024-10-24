@@ -82,7 +82,7 @@ First thing that called my atention. There is no such thing as a "grouped bar" v
 
 At the start of the project, I wondered where could stacked bars be better than grouped bars. By mere chance, I found it: whenever any of the values is 0. Heatmaps, although they are as quick to deliver information, I'd treat them more as a density plot. To see how a big group of variables relate among each other, rather than for showing a small amount of data. 
 
-The conclusion of the visualization is that... I should used grouped bars always for visualizing multiple amounts, but if in any case one variable is 0, then use stacked bars (Whenever the groups are small enough)
+The conclusion of the visualization is that... I should use grouped bars always for visualizing multiple amounts, but if in any case one variable is 0, then use stacked bars (Whenever the groups are small enough)
 
 # Visualizing a single distribution
 
@@ -113,6 +113,7 @@ There are multiple ways to visualize and compare distributions that relate two v
 - Overlapping densities
 - Comparing density plots (Plot each individual distribution, in front of overall distribution that resumes both variables)
 - Age pyramids
+- Ridgeline plots
 
 The idea is to make a plot with all of them to train in data visualization, and comparing results.
 
@@ -122,10 +123,24 @@ Doing these visualizations I learned a lot. I want to divide them individually:
 
 The boxplot was surprisingly easy to make. Its directly implemented in matplotlib, and its highly customizable. Only worry about label rotation.
 
+Similar to boxplot, violinplot has direct implementation and thus it was easy to use. It has lots of parameters to customize its appearence. 
 
+Stripcharts kinda surprised me, since they dont have direct support. To create them, you use a scatter plot containing the x values. To add jitter, just add a tiny random value to the x axis. 
 
-An interesting detail I want to share before I forget. Shared y axis in subplots. It is possible to share x and y axis by row or column, but you can share in a customized way pretty easily:
-# Manually share the y-axis between [1, 0], [1, 1], and [1, 2]
+Sina plots are truly a mix of strip charts and violinplots. However, I read there is a variation where you can use density-based jittering, where points have more jittering depending on how dense the function is at that point value. To implement that, only estimate density using gausian kde, and obtain the densities at the point. Using a minmax scaled density, a uniform distribution between -1 and 1, and a jitter strength value you have it.
+
+For the density plot comparison the most difficult thing is scaling each density now. Since all distribution areas must be equal to one, if you plot the overall distribution with the subset, they will have similar sizes. You have to scale down the densities of the subset, by multiplying their real densities by the percentage they represent in the whole distribution. 
+
+Overlapping density plot only works well for smaller subsets of distributions, and shine only when the distributions are very different from each other.
+
+Age pyramids are made by plotting horizontal bar plots. Then, only make sure to change all label labels to their absolute value. 
+
+Ridgeplots are curious. I have not found a way to make them using matplotlib or seaborn. The closest thing is a axis on top of each other trying to simulate it, bu it doesnt do the trick. 
+I found a library called "joypy" (joyplot is alias for ridgeline plot) that implements it directly. It uses pyplot as its backend, but poorly. It has its problems, but exists as the best option currently. 
+Ridgeline plots are **speacially** useful to show trends over time. Since none of my data 
+
+An interesting detail I want to share before I forget. Custom shared. It is possible to share x and y axis by row or column, but you can share in a customized way pretty easily:
+# Manually share the y-axis
 ax1.sharey(ax2, ax3)
 
 Also, to make a custom plot (occupies multiples subplots) You  gotta define a figure and a gridspec independently, and then create each of the axis:
@@ -140,3 +155,15 @@ Also, to make a custom plot (occupies multiples subplots) You  gotta define a fi
                 for j in range(4):
                     # First subplot (occupies the top left cell)
                     axes.append(fig.add_subplot(gs[0, 0:2]))
+
+I learned this while trying to make the density plot comparison in one single axes. This was not the case for this to be useful, but it could be nice in the future to have that tool at hand.
+
+
+# Visualizing proportions
+Similar to visualizaing amounts, but time all adds to a whole. As such, the visualizations frequently used are similar, only including piecharts. This part will compare all proportion visualizations:
+- Piechart
+- Vertical bar plot
+- Horizontal barplot
+- Stacked bar plot
+
+I will make the same division as before: bike types in the market.
