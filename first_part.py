@@ -735,31 +735,102 @@ def visualizing_multiple_distributions():
 
 def proportions_visualization():
 
-    def piechart():
-        pass
+    def piechart(data, ax):
+        # Plot the pie chart
+        wedges, texts, autotexts = ax.pie(
+            data,
+            labels=data.index,
+            autopct=lambda pct: f'{int(pct * sum(data) / 100)}',  # Shows exact amounts
+            startangle=90
+        )
 
-    def vertical_barplot():
-        pass
+        # Customize label text, color and font
+        for text in texts:
+            text.set_color("white")
+            text.set_fontweight("bold")
 
-    def horizontal_barplot():
-        pass
+        ax.set_title('Category piechart')
 
-    def stackedbar_plot():
-        pass
+    def vertical_barplot(data, ax):
+
+        # Make the plot
+        ax.bar(data.index, data.values, orientation='vertical')
+
+        # Customize xticks
+        ax.set_xticklabels(data.index, rotation=45, ha='right')
+
+        # Customize labels and title
+        ax.set_xlabel('Categories')
+        ax.set_ylabel('Value Count')
+        ax.set_title('Vertical barplot')
+
+
+    def horizontal_barplot(data, ax):
+
+        # Make the plot
+        ax.barh(data.index, data.values, orientation='horizontal')
+
+        # Customize labels and title
+        ax.set_xlabel('Value Count')
+        ax.set_ylabel('Categories')
+        ax.set_title('Horizontal barplot')
+
+    def stackedbar_plot(data, ax):
+
+        # Store the different categories names
+        categories = data.index
+
+        bottom = 0
+
+        # Create the stacked bar chart
+        for i, value in enumerate(data.values):
+            ax.bar(1.5, value, bottom=bottom, label=categories[i], width=1.5)
+
+            # Add a text with the specific amount
+            ax.text(1.5,  bottom + value / 2, str(value), ha='center', va='center', color='white',
+                    fontweight='bold')
+
+            bottom += value  # Update the bottom position for stacking
+
+        # Remove xticks
+        ax.set_xticks([])
+
+        # Activate legend
+        ax.legend(title='categories', fontsize='x-small')
+
+        # Set axes limits
+        ax.set_xlim(0, 3)
+        ax.set_ylim(0, data.sum() + data.sum() * 0.3)
+
+        # Customize axis labels and title
+        ax.set_ylabel('Value counts')
+        ax.set_title('Stacked barplot')
 
 
 
     # obtain data
     df = obtain_dataset()
     # Transform data for visualization
-    df = df.pivot_table(index='brand', columns='bike type', aggfunc='size', fill_value=0)
-    df = df.loc[['Honda', 'Kawasaki', 'Suzuki', 'Yamaha']]
+    df = df['bike type'].value_counts()
 
-    # Create plot
-    fig, axes = plt.subplots(1, 4, figsize=(16, 6))
+    # Create the figure
+    fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(12,4))
+
+    piechart(df, axes[0])
+
+    vertical_barplot(df, axes[1])
+
+    horizontal_barplot(df, axes[2])
+
+    stackedbar_plot(df, axes[3])
+    # Set Layout
+    fig.tight_layout()
+
+    # Save plot
+    fig.savefig('Images/Visualizing proportions.png')
 
 
 
 
 
-visualizing_multiple_distributions()
+proportions_visualization()
