@@ -167,3 +167,23 @@ Similar to visualizaing amounts, but time all adds to a whole. As such, the visu
 - Stacked bar plot
 
 I will make the same division as before: bike types in the market.
+
+The piechart is easy to do, as it has a direct implementation. Only thing to take into account is the fact that it wants to show quantity values in perecntages. that can be useful sometimes, but real values sometimes might be better to enhance the dimmension of the subset.
+
+Vertical and horizontal bar plots are simple to do as well. Vertical bar plots need rotation on its horizontal labels to avoid them to colision into themselves. Horizontal bar plots do not suffer from this problem, but too long labels might be too long and distracting, providing huge margins.
+
+A single stacked bar have one more problem in adition to the ones seen previously. Pyplot will adjust the plot so it ocupies everything widely speacking. So Its necessary to set bar width, and plot axis limits for the bar to not look too big, or not leave enough space for the legend. 
+
+
+# Visualizing proportions with multiple grouping variables
+
+Sometimes grouping can be quite more complex than just one variable. We might be interested to divide bikes not only by types, but acceleration and weight as well. I will turn weight to a discrete variable (light < 140, medium < 160, heavy 160 <), and acceleration (slow > 35, 35 > normal > 20, fast < 20)
+
+There are three main ways to visualize this type of data:
+- tree map plots
+- mosaic plots
+- parallel sets
+
+There is another option, density plots comparison. We used them previously. Regular ones only allow for two grouping variables. But I want to explore the posibility of using 3 using a matrix. I will use a different plot for each case. 
+
+- Density plot comparison (Only for 2 levels of anidation, or more using a matrix. But)

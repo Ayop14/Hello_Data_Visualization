@@ -7,6 +7,8 @@ import numpy as np
 import seaborn as sns
 from scipy.stats import probplot, gaussian_kde
 from joypy import joyplot
+from statsmodels.graphics.mosaicplot import mosaic
+from itertools import product
 
 type_to_shape_dict = {
         'Naked':'^',
@@ -30,7 +32,7 @@ type_to_color = {
 def weight_visualization():
     # Obtain data
     data = obtain_dataset()
-    weight = data['weight full']
+    weight = data['acceleration']
     # Visualize weights using a histogram
     weight.plot(kind='hist', bins = 25)
     # Plot 0.25, 0.75 quartiles as vertical bars
@@ -737,24 +739,27 @@ def proportions_visualization():
 
     def piechart(data, ax):
         # Plot the pie chart
-        wedges, texts, autotexts = ax.pie(
+        _, _, autotexts = ax.pie(
             data,
             labels=data.index,
+            colors = [type_to_color[type] for type in data.index],
             autopct=lambda pct: f'{int(pct * sum(data) / 100)}',  # Shows exact amounts
             startangle=90
         )
 
-        # Customize label text, color and font
-        for text in texts:
-            text.set_color("white")
-            text.set_fontweight("bold")
+        # Display the quantities in white and bold font
+        for autotext in autotexts:
+            autotext.set_color('white')
+            autotext.set_fontsize(9)
+            autotext.set_weight('bold')
 
         ax.set_title('Category piechart')
 
     def vertical_barplot(data, ax):
 
         # Make the plot
-        ax.bar(data.index, data.values, orientation='vertical')
+        ax.bar(data.index, data.values, orientation='vertical', 
+               color = [type_to_color[type] for type in data.index])
 
         # Customize xticks
         ax.set_xticklabels(data.index, rotation=45, ha='right')
@@ -768,7 +773,8 @@ def proportions_visualization():
     def horizontal_barplot(data, ax):
 
         # Make the plot
-        ax.barh(data.index, data.values, orientation='horizontal')
+        ax.barh(data.index, data.values, orientation='horizontal',
+                color = [type_to_color[type] for type in data.index])
 
         # Customize labels and title
         ax.set_xlabel('Value Count')
@@ -784,7 +790,7 @@ def proportions_visualization():
 
         # Create the stacked bar chart
         for i, value in enumerate(data.values):
-            ax.bar(1.5, value, bottom=bottom, label=categories[i], width=1.5)
+            ax.bar(1.5, value, bottom=bottom, label=categories[i],color=type_to_color[data.index[i]], width=1.5)
 
             # Add a text with the specific amount
             ax.text(1.5,  bottom + value / 2, str(value), ha='center', va='center', color='white',
@@ -830,7 +836,35 @@ def proportions_visualization():
     fig.savefig('Images/Visualizing proportions.png')
 
 
+def multiple_group_proportions_visualizations():
+    
+    def mosaic_plot(data, ax):
+
+        # Store all feature names in a list
+        features = data.columns.tolist()
+
+        # Obtain how many times each combination apears 
+        mosaic_data = data.groupby(features).size().reset_index()
+        
+        # Make the plot
+        mosaic(mosaic_data, features, title='Mosaic Plot', labelizer=lambda x: x, ax=ax)
+
+    
+    df = obtain_dataset()
+    df = df[['bike type', 'weight full', 'acceleration']]
+    df['weight full'] = pd.cut(df['weight full'], bins=(0,140,160,1000), labels=['light', 'medium weight', 'heavy'])
+    df['acceleration'] = pd.cut(df['acceleration'], bins=(0,20,35,1000), labels=['fast', 'normal speed', 'slow'])
+
+    # Any bike that does not reach 100 km/h (null values) is considered slow
+    df.loc[df['acceleration'].isnull(), 'acceleration'] = 'slow'
+
+    fig, ax = plt.subplots(figsize=(16,6))
+
+    print(df)
+    
+    mosaic_plot(df, ax)
+
+    fig.savefig('Images/Visualizing_multiple_proportions.png')
 
 
-
-proportions_visualization()
+multiple_group_proportions_visualizations()
