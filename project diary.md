@@ -177,7 +177,7 @@ A single stacked bar have one more problem in adition to the ones seen previousl
 
 # Visualizing proportions with multiple grouping variables
 
-Sometimes grouping can be quite more complex than just one variable. We might be interested to divide bikes not only by types, but acceleration and weight as well. I will turn weight to a discrete variable (light < 140, medium < 160, heavy 160 <), and acceleration (slow > 35, 35 > normal > 20, fast < 20)
+Sometimes grouping can be quite more complex than just one variable. We might be interested to divide bikes not only by types, but acceleration and weight as well. I will turn weight to a discrete variable (light < 150, heavy >= 150 ), and acceleration (slow >  25, fast <= 25)
 
 There are three main ways to visualize this type of data:
 - tree map plots

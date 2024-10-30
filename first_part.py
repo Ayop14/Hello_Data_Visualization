@@ -8,7 +8,7 @@ import seaborn as sns
 from scipy.stats import probplot, gaussian_kde
 from joypy import joyplot
 from statsmodels.graphics.mosaicplot import mosaic
-from itertools import product
+import plotly.express as px
 
 type_to_shape_dict = {
         'Naked':'^',
@@ -838,33 +838,64 @@ def proportions_visualization():
 
 def multiple_group_proportions_visualizations():
     
-    def mosaic_plot(data, ax):
+    def mosaic_plot(data):
+        # Create plot
+        fig, ax = plt.subplots(figsize=(16, 6))
 
         # Store all feature names in a list
         features = data.columns.tolist()
 
         # Obtain how many times each combination apears 
-        mosaic_data = data.groupby(features).size().reset_index()
+        mosaic_data = data.groupby(features).size()
+
+        # Custom labelizer: do not show anything if it has 0 values
+        def custom_labelizer(x):
+            if mosaic_data[x] == 0:
+                return ''
+            else:
+                return ('\n ').join(x)
         
         # Make the plot
-        mosaic(mosaic_data, features, title='Mosaic Plot', labelizer=lambda x: x, ax=ax)
+        mosaic(mosaic_data,  title='Mosaic Plot', labelizer=custom_labelizer, ax=ax)
+
+        # Save plot
+        fig.savefig('Images/Visualizing_mosaic_plot.png')
+
+
+    def tree_map_plot(data):
+
+        fig, ax = plt.subplots(figsize=(16, 6))
+
+        # Store all feature names in a list
+        features = data.columns.tolist()
+
+        # Obtain how many times each combination apears
+        tree_map_data = data.groupby(features).size().reset_index(name='values')
+
+        # Create a treemap
+        fig = px.treemap(
+            tree_map_data,
+            path=features,  # Hierarchical paths
+            values='values',  # Values determine the size
+            title="Treemap visualization",
+        )
+
+        # Show the plot
+        fig.write_image("Images/Visualizing_treemap_plot.png")
 
     
     df = obtain_dataset()
     df = df[['bike type', 'weight full', 'acceleration']]
-    df['weight full'] = pd.cut(df['weight full'], bins=(0,140,160,1000), labels=['light', 'medium weight', 'heavy'])
-    df['acceleration'] = pd.cut(df['acceleration'], bins=(0,20,35,1000), labels=['fast', 'normal speed', 'slow'])
+    df['weight full'] = pd.cut(df['weight full'], bins=(0,150,1000), labels=['light', 'heavy'])
+    df['acceleration'] = pd.cut(df['acceleration'], bins=(0,25,1000), labels=['fast', 'slow'])
 
     # Any bike that does not reach 100 km/h (null values) is considered slow
     df.loc[df['acceleration'].isnull(), 'acceleration'] = 'slow'
 
-    fig, ax = plt.subplots(figsize=(16,6))
+    mosaic_plot(df)
 
-    print(df)
-    
-    mosaic_plot(df, ax)
+    tree_map_plot(df)
 
-    fig.savefig('Images/Visualizing_multiple_proportions.png')
 
 
 multiple_group_proportions_visualizations()
