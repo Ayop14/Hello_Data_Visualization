@@ -864,8 +864,6 @@ def multiple_group_proportions_visualizations():
 
     def tree_map_plot(data):
 
-        fig, ax = plt.subplots(figsize=(16, 6))
-
         # Store all feature names in a list
         features = data.columns.tolist()
 
@@ -883,6 +881,26 @@ def multiple_group_proportions_visualizations():
         # Show the plot
         fig.write_image("Images/Visualizing_treemap_plot.png")
 
+
+    def paralel_set_plot(data):
+
+        features = data.columns.to_list()
+
+        # You need a column indication color of the sample
+        data['color'] = df['bike type'].map(type_to_color)
+
+        # Create the parallel sets plot
+        fig = px.parallel_categories(
+            df,
+            dimensions=features,
+            color='color',  # Optional: assign a constant color for all links
+            labels=features,
+            title='Parallel set visualization'
+        )
+
+        # Show the plot
+        fig.write_image('Images/Visualizing_paralel_set_plot.png')
+
     
     df = obtain_dataset()
     df = df[['bike type', 'weight full', 'acceleration']]
@@ -895,6 +913,8 @@ def multiple_group_proportions_visualizations():
     mosaic_plot(df)
 
     tree_map_plot(df)
+
+    paralel_set_plot(df)
 
 
 
