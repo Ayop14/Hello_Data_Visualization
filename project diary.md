@@ -200,5 +200,29 @@ Finally, the density comparison matrix is implemented similarly to the previous 
 # Visualizing uncertainty 
 There is a particular line I really liked from the book: "Experts prefer a strong intuitive impresion of uncertainty rather than visualization accuracy". The example the book gives is a frequency graph to represent a probability. I want to prepare the same plot. Its visual component is way more impactful than saying a probability number. This can be really useful to deliver strong points.
 
+Making the plot, I initially used imshow, the one I used for the heatmap. But the grid doesnt fit perfectly. Thats why I used the seaborn version. Modify limit visualization. because otherwise not everything is shown. 
 
+I want to focus on the most interesting uncertainty plots:
+- Error bars
+- Graded error bars
+- Quantile dot plot
 
+These are regarded as very useful in the book. 
+
+# Hipothetical outcome plots
+
+# When barplots fail
+- Small amount of data
+- Bigger amounts of data
+# Asociations between two variables
+- Correlogram
+- Buble chart
+- scatterplots in matrix comparations
+- paired data
+- slopegraph
+
+# Time series
+connected scatterplot
+separate time series into its components
+
+# Practical overview

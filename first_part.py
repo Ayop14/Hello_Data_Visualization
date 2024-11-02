@@ -982,18 +982,44 @@ def multiple_group_proportions_visualizations():
 
 
 def visualizing_uncertainty():
-    def frequency_plot(prob):
+    def frequency_plot(probability, grid_size = 10):
         '''
 
-        :param prob: probability (1-100)
+        :param prob: probability (0.1-1)
         :return:
         '''
-        pass
+        total_squares = grid_size ** 2
+        colored_squares = int(probability * total_squares)
+
+        # Create an array with 1s (colored) and 0s (not colored) based on probability
+        squares = np.zeros(total_squares) + 0.3
+        squares[:colored_squares] = 1
+        np.random.shuffle(squares)  # Shuffle to distribute colored squares randomly
+
+        # Reshape the array to a grid
+        grid = squares.reshape((grid_size, grid_size))
+
+        # Plot the grid
+        fig, ax = plt.subplots()
+        sns.heatmap(grid, ax=ax, cmap=["white", "blue"], linewidths=0.5, linecolor='gray',
+                    cbar=False, square=True, xticklabels=False, yticklabels=False)
+
+        # Set plot limits to ensure the entire grid is shown
+        ax.set_xlim(0, grid_size+0.1)
+        ax.set_ylim(-0.1, grid_size)
+
+        # Title with probability
+        ax.set_title(f"Probability: {probability * 100:.1f}%")
+        # Save the image
+        fig.tight_layout()
+        fig.savefig('Images/Frequency_plot.png')
+
 
     df = obtain_dataset()
 
+    frequency_plot(0.1)
 
 
 
 
-multiple_group_proportions_visualizations()
+visualizing_uncertainty()
