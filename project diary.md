@@ -186,4 +186,19 @@ There are three main ways to visualize this type of data:
 
 There is another option, density plots comparison. We used them previously. Regular ones only allow for two grouping variables. But I want to explore the posibility of using 3 using a matrix. I will use a different plot for each case. 
 
-- Density plot comparison (Only for 2 levels of anidation, or more using a matrix. But)
+- Density plot comparison (Using a matrix to compare multiple subsets)
+
+Tree map plots are implemented in plotly visualization library. The only difficulty is to provide a dataframe with each feature value combination and count how many times does it appear.
+
+Regarding the *mosaic plot*, its directly implemented in statsmodels. Its highly customizable as well. the only problem is providing a list of all feature combination and how many times do they appear in the dataset.
+
+The paralel set is directly implemented as well in plotly. The only issue is color, there must be a column with the name of what color do you want that feature to be. (I used color only for first category)
+
+Finally, the density comparison matrix is implemented similarly to the previous one. Here, I could have added the general distribution for the whole category and subcategory variable as a whole, filtered by the other feature. That would be 4 distributions in every subplot, (General, column, row, and subset) too many information in my opinion. 
+
+
+# Visualizing uncertainty 
+There is a particular line I really liked from the book: "Experts prefer a strong intuitive impresion of uncertainty rather than visualization accuracy". The example the book gives is a frequency graph to represent a probability. I want to prepare the same plot. Its visual component is way more impactful than saying a probability number. This can be really useful to deliver strong points.
+
+
+

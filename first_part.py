@@ -901,11 +901,73 @@ def multiple_group_proportions_visualizations():
         # Show the plot
         fig.write_image('Images/Visualizing_paralel_set_plot.png')
 
+
+    def density_comparison_matrix(data, plot_range=25):
+        '''
+
+        :param data: dataframe input with 3 cols. two first categorical, last one continous. First column in y axis, second in x axis
+        :return: density comparison matrix
+        '''
+        # Optionally share y-axis between more subplots
+        category_values = [data[column].unique() for column in data.columns[:-1]]
+
+        category_name = data.columns[0]
+        subcategory_name = data.columns[1]
+        continous_variable = data.columns[2]
+
+        total_distribution_elements = len(data)
+
+        # Create plot
+        fig, axes = plt.subplots(len(category_values[0]), len(category_values[1]), figsize=(16,6), sharex=True, sharey=True)
+
+        for i, category in enumerate(category_values[0]):
+            for j, subcategory in enumerate(category_values[1]):
+                # In every cell, plot the general distribution
+                sns.kdeplot(data[continous_variable], ax=axes[i,j], fill=True, color='lightgrey', linewidth=2, label='Full distribution')
+                # Obtain the subset of the data
+                data_subset = data.loc[(data[category_name] == category) & (df[subcategory_name] == subcategory), continous_variable]
+
+                axes[i,j].set_ylabel(category)
+                axes[i, j].set_xlabel(subcategory)
+
+                if len(data_subset) == 0:
+                    # If there is no values, dont plot anything
+                    continue
+                elif len(data_subset) == 1:
+                    # If there is only one point, plot a vertical line
+                    axes[i,j].vlines(data_subset, ymin=0, ymax=0.01)
+                    continue
+                # If there is more than one element, plot the distribution
+                # Obtain scale factor
+                scale_factor = len(data_subset)/total_distribution_elements
+                # Obtain kde from the subset
+                kde_subset = gaussian_kde(data_subset)
+                # Obtain x and y values to plot
+                x_vals = np.linspace(data_subset.min() - plot_range, data_subset.max() + plot_range, 100)
+                y_vals = kde_subset(x_vals)
+
+                # Plot the scaled subset density
+                axes[i,j].fill_between(x_vals, y_vals * scale_factor, color='blue', alpha=0.6, linewidth=3)
+
+                #ax1.set_title(f'{distrib1.name} Distribution')
+
+        axes[0,0].set_xlabel('a')
+        # Set a single x and y label for the entire figure
+        fig.supylabel(category_name, fontsize=14)
+        fig.supxlabel(subcategory_name, fontsize=14)
+        fig.suptitle('Density comparation matrix')
+
+        # Save the figure
+        fig.tight_layout()
+        fig.savefig('Images/Visualizing_Density_Comparison.png')
+
     
     df = obtain_dataset()
     df = df[['bike type', 'weight full', 'acceleration']]
+    df['acceleration'] = pd.cut(df['acceleration'], bins=(0, 25, 1000), labels=['fast', 'slow']).fillna('slow') # Nulls are slow bikes
+    weight_continous = df[['acceleration', 'bike type', 'weight full']].copy()
     df['weight full'] = pd.cut(df['weight full'], bins=(0,150,1000), labels=['light', 'heavy'])
-    df['acceleration'] = pd.cut(df['acceleration'], bins=(0,25,1000), labels=['fast', 'slow'])
+
 
     # Any bike that does not reach 100 km/h (null values) is considered slow
     df.loc[df['acceleration'].isnull(), 'acceleration'] = 'slow'
@@ -915,6 +977,22 @@ def multiple_group_proportions_visualizations():
     tree_map_plot(df)
 
     paralel_set_plot(df)
+
+    density_comparison_matrix(weight_continous, plot_range=25)
+
+
+def visualizing_uncertainty():
+    def frequency_plot(prob):
+        '''
+
+        :param prob: probability (1-100)
+        :return:
+        '''
+        pass
+
+    df = obtain_dataset()
+
+
 
 
 
