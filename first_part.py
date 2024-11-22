@@ -9,6 +9,11 @@ from scipy.stats import probplot, gaussian_kde
 from joypy import joyplot
 from statsmodels.graphics.mosaicplot import mosaic
 import plotly.express as px
+from matplotlib.patches import Ellipse
+from scipy import stats
+from matplotlib.animation import FuncAnimation, PillowWriter
+from itertools import chain
+
 
 type_to_shape_dict = {
         'Naked':'^',
@@ -1014,11 +1019,312 @@ def visualizing_uncertainty():
         fig.tight_layout()
         fig.savefig('Images/Frequency_plot.png')
 
+    def error_bar_plot(data, ax):
+        
+        # Obtain mean from the data for the bar plot
+        data_average = data.mean(axis=0)
+
+        # Obtain sample standard error as a measure of error
+        bar_error = data.std(axis=0)
+
+        # Make the barplot
+        ax.bar(data_average.index, data_average, yerr=bar_error, capsize=5)
+
+        # Rotate labels
+        ax.set_xticklabels(data_average.index, rotation=45, ha='right')
+
+        ax.set_title('Error bar plot')
+
+
+    def graded_error_bar_plot(data, ax):
+ 
+        def calculate_confidence_interval(data, confidence=0.95):
+            mean = data.mean()
+            sem = stats.sem(data)  # standard error of the mean
+            interval = stats.t.interval(confidence, len(data)-1, loc=mean, scale=sem)
+            return interval
+
+        # Plot each graded confidence interval as a layered bar
+        for i, column in enumerate(data.columns):
+            # Obtain the variable from the dataframe
+            df = data[column]
+
+            # Obtain statistical information
+            mean = df.mean()
+            ci80 = calculate_confidence_interval(df, confidence=0.80)
+            ci95 = calculate_confidence_interval(df, confidence=0.95)
+            ci99 = calculate_confidence_interval(df, confidence=0.99)
+            # Plot the 99% confidence interval and plot limit lines for every bar
+            ax.barh(i, 2 * ci99, left=mean - ci99, color='skyblue', edgecolor='black', height=0.1, label='99% CI' if i == 0 else "")
+            ax.plot([mean - ci99,mean - ci99], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
+            ax.plot([mean + ci99,mean + ci99], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
+            # Plot the 95% confidence interval and plot limit lines for every bar
+            ax.barh(i, 2 * ci95, left=mean - ci95, color='cornflowerblue', edgecolor='black', height=0.2, label='95% CI' if i == 0 else "")
+            ax.plot([mean - ci95,mean - ci95], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
+            ax.plot([mean + ci95,mean + ci95], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
+            # Plot the 80% confidence interval and plot limit lines for every bar
+            ax.barh(i, 2 * ci80, left=mean - ci80, color='royalblue', edgecolor='black', height=0.3, label='80% CI' if i == 0 else "")
+            ax.plot([mean - ci80,mean - ci80], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
+            ax.plot([mean + ci80,mean + ci80], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
+            
+            # Plot the mean value as a vertical line
+            ax.plot([mean, mean], [i - 0.4, i + 0.4], color='black', linewidth=1.5)
+
+        # Plot mean values using a scatterplot
+        mean_values = data.mean(axis=1)
+        ax.scatter(mean_values, np.arange(len(mean_values)), color = 'orange', marker='o',s=500)
+
+        # Label and ticks
+        ax.set_yticks(range(len(data.columns)))
+        ax.set_yticklabels(data.columns)
+        ax.set_xlabel('Value')
+        ax.set_title('Graded Error Bars with Confidence Intervals')
+
+        # Add a legend
+        ax.legend(loc='upper right')
+
+
+    def quantile_dot_plot(data, ax, total_dots, cols):
+        '''
+            Total_dots: Total dots to represent the entire distribution
+            cols: # Number of columns of dots
+        '''
+        # Define quantiles (25% and 75%)
+        quantile_25 = data.quantile(0.25)
+        quantile_75 = data.quantile(0.75)
+
+        # Plot density curve
+        sns.kdeplot(data, ax=ax, fill=True, color="lightgray", alpha=0.5, linewidth=2)
+
+        # Generate bin edges and midpoints
+        x_min, x_max = data.min(), data.max()
+        bin_edges = np.linspace(x_min, x_max, cols + 1)
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+        # Calculate the number of dots per bin based on data distribution
+        bin_counts = pd.cut(data, bins=bin_edges).value_counts().sort_index()
+
+        # Radius in x-units for the circles
+        radius = (bin_edges[1] - bin_edges[0]) / 2  # Adjusted to fit within each bin
+        diameter = radius * 2
+
+        # Recompute aspect ratio after fixing limits
+        x_range = ax.get_xlim()[1] - ax.get_xlim()[0]
+        y_range = ax.get_ylim()[1] - ax.get_ylim()[0]
+        aspect_ratio = (y_range * 1.05) / x_range
+
+        # Fix the y-axis range to prevent dynamic resizing and calculate aspect_ratio
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylim(0, y_range * 1.05)  
+
+        # Helper function to determine the color of a dot based on its x position
+        def get_color(x):                       
+            if x <= quantile_25:
+                return "yellow"
+            elif x <= quantile_75:
+                return "lightblue"
+            else:
+                return "blue"
+
+        # Plot the grid of dots
+        for i, center in enumerate(bin_centers):
+            color = get_color(center)
+            
+            # Proportion of dots in this bin based on data distribution
+            proportion = bin_counts.iloc[i] / len(data)  # Fraction of data in this bin
+            num_dots = int(proportion * total_dots)  # Number of dots for this bin
+            
+            for j in range(num_dots):
+                # Calculate y positions with fixed scaling
+                y_position = diameter * aspect_ratio * (2*j + 1)
+
+                # Plot the dot as a perfect circle with height adjusted by aspect_ratio
+                circle = Ellipse(
+                    (center, y_position), 
+                    width=diameter,
+                    height=diameter * aspect_ratio * 2, 
+                    color=color, 
+                    edgecolor='black',
+                    lw=0.5
+                )
+                ax.add_patch(circle)
+
+        # Adjust plot aesthetics
+        ax.set_title("Quantile Dot Plot")
+        ax.set_xlabel("Value")
+        ax.axvline(quantile_25, color='gray', linestyle='--', linewidth=1)
+        ax.axvline(quantile_75, color='gray', linestyle='--', linewidth=1)
+
 
     df = obtain_dataset()
+    # Only obtain data within the same value range 
+    error_bar_data = df[['seat height', 'price', 'length','width','height']]
+
+    quantile_dot_plot_data = df['price']
+
+    # Define figure axis
+    fig, axes = plt.subplots(1, 3, figsize=(12,4))
+
+    error_bar_plot(error_bar_data, axes[0])
+
+    quantile_dot_plot(quantile_dot_plot_data, axes[1], 40, 10)
+
+    graded_error_bar_plot(error_bar_data, axes[2])
 
     frequency_plot(0.1)
 
+    fig.tight_layout()
+
+    fig.savefig('Images/visualizing_uncertainty.png')
+
+
+ef visualizing_probability():
+    def hyphothetical_outcome_plot(data1, data2, sample_size):
+
+        # Create plot
+        fig, ax = plt.subplots()
+
+        # Set vertical line positions
+        y1 = 1
+        y2 = 2
+
+        ax.set_ylim(0,3)
+
+        # Set vertical bar size
+        ybar_size = 0.25
+        
+        # Set ax ticks
+        ax.set_yticks([y1,y2], [data1.name, data2.name])
+
+        # Set x limits to max and min from the data (Matplotlib doesnt update it automatically)
+        xmax = max(chain(data1, data2))
+        xmin = min(chain(data1, data2))
+
+        range = (xmax - xmin) * 0.15
+        ax.set_xlim(xmin - range, xmax + range)
+
+        # Draw horizontal bars
+        ax.grid(which='major', axis='y', lw=3)
+
+        # Initialize vertical lines
+        line1, = ax.plot([], [], 'r-', lw=5)  # Vertical line for bar 1
+        line2, = ax.plot([], [], 'r-', lw=5)  # Vertical line for bar 2
+
+        # Title
+        ax.set_title("Hypothetical outcome plot")
+        ax.set_xlabel('Feature values')
+
+        sample1 = np.random.choice(data1, sample_size)
+        sample2 = np.random.choice(data2, sample_size)
+
+        # Update function for animation
+        def update(frame):
+            # Update vertical lines
+            line1.set_data([sample1[frame], sample1[frame]], [y1 - ybar_size, y1 + ybar_size])  # Sample data 1 bar
+            line2.set_data([sample2[frame], sample2[frame]], [y2 - ybar_size, y2 + ybar_size])  # Sample data 2 bar
+            return line1, line2
+
+        # Create animation
+        anim = FuncAnimation(fig, update, frames=sample_size, interval=500, blit=False)
+
+        # Save as GIF
+        anim.save("Images/hypothetical_outcome_plot.gif", writer=PillowWriter(fps=2))
+        plt.close()
+
+
+    df = obtain_dataset()
+
+    df = df[['bike type', 'weight full']]
+
+    df = [pd.Series(values, name=category) for category, values in df.groupby("bike type")["weight full"]]
+
+    hyphothetical_outcome_plot(df[-2],df[-1], 5)
+
+def when_barplots_fail():
+    def ordered_scatter_plot(data, ax, colors, legend):
+        # Order the data
+        ordered_data = data.sort_values()
+
+        # Obtain y values for every point and set max y limit
+        y_values = np.arange(len(data))
+        ax.set_ylim(-1, len(ordered_data))
+
+        # Set grid lines and delete ylabels for everypoint
+        ax.set_yticks(y_values, [])
+        ax.grid(which='major', axis='y', zorder=0)
+
+        # make the scatterplot
+        ax.scatter(ordered_data, y_values, s=50, color=colors, zorder=2)
+
+        # Add the legend with color information
+        ax.legend(handles=legend, title="Legend")
+
+        # Set plot aesthetics
+        ax.set_xlabel('Feature values')
+        ax.set_title('Ordered scatter plot')
+
+    def ordered_heatmap(data, ax, columns):
+        import numpy as np
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+
+        # Obtain data range
+        xmin = min(chain(*data))
+        xmax = max(chain(*data))
+
+        # Step 1: Define intervals and bin data
+        bins = np.linspace(xmin, xmax, columns)  # Adjust range and bins as necessary
+        binned_data = {
+            series.name: np.histogram(series, bins=bins)[0]
+            for series in data
+        }
+
+        # Step 2: Create a DataFrame from binned data
+        heatmap_data = pd.DataFrame(binned_data).T  # Transpose to get series as rows
+        heatmap_data.columns = [f'>{int(range)}' for range in bins[:-1]]
+
+        # Step 3: Sort rows based on series means
+        heatmap_data['Series_means'] = [series.mean() for series in data]
+        heatmap_data = heatmap_data.sort_values('Series_means', ascending=False).drop(columns='Series_means')
+
+        # Step 4: Plot the heatmap
+        sns.heatmap(
+            heatmap_data, 
+            cmap="YlGnBu", 
+            ax=ax, 
+            cbar_kws={'label': 'Count'},
+            linewidths=0.5
+        )
+        ax.set_title("Heatmap of Series by Interval Counts")
+        ax.set_xlabel("Intervals")
+        ax.set_ylabel("Series")
+
+
+
+
+    # Create subplot
+    fig, axes = plt.subplots(1,2, figsize=(10,8))
+    
+    # Obtain data
+    df = obtain_dataset()
+    df = df[['weight full', 'bike type']]
+
+    ordered_heatmap_data = [pd.Series(values, name=category) for category, values in df.groupby("bike type")["weight full"]]
+
+    # Custom legend creation
+    legend = [
+        Line2D([0], [0], marker='o', color='w', label=label, markerfacecolor=color, markersize=10)
+        for label, color in type_to_color.items()
+    ]
+
+    ordered_scatter_plot(df['weight full'], axes[0], df['bike type'].map(type_to_color), legend)
+
+    ordered_heatmap(ordered_heatmap_data, axes[1], 10)
+
+    # Save the figure
+    plt.tight_layout()
+    fig.savefig('Images/when_barplots_fail.png')
 
 
 
