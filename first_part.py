@@ -1039,10 +1039,10 @@ def visualizing_uncertainty():
     def graded_error_bar_plot(data, ax):
  
         def calculate_confidence_interval(data, confidence=0.95):
-            mean = data.mean()
-            sem = stats.sem(data)  # standard error of the mean
-            interval = stats.t.interval(confidence, len(data)-1, loc=mean, scale=sem)
-            return interval
+            mean_std = data.sem()
+            critical_value = stats.t.ppf(1 - (1- confidence) / 2, len(data)-1)
+            error_margin = critical_value * mean_std
+            return error_margin
 
         # Plot each graded confidence interval as a layered bar
         for i, column in enumerate(data.columns):
@@ -1055,24 +1055,24 @@ def visualizing_uncertainty():
             ci95 = calculate_confidence_interval(df, confidence=0.95)
             ci99 = calculate_confidence_interval(df, confidence=0.99)
             # Plot the 99% confidence interval and plot limit lines for every bar
-            ax.barh(i, 2 * ci99, left=mean - ci99, color='skyblue', edgecolor='black', height=0.1, label='99% CI' if i == 0 else "")
-            ax.plot([mean - ci99,mean - ci99], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
-            ax.plot([mean + ci99,mean + ci99], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
+            ax.barh(i, 2 * ci99, left=mean - ci99, color='skyblue', edgecolor='black', height=0.05, label='99% CI' if i == 0 else "")
+            ax.plot([mean - ci99,mean - ci99], [i - 0.05, i + 0.05], color='black', linewidth=1.5)
+            ax.plot([mean + ci99,mean + ci99], [i - 0.05, i + 0.05], color='black', linewidth=1.5)
             # Plot the 95% confidence interval and plot limit lines for every bar
-            ax.barh(i, 2 * ci95, left=mean - ci95, color='cornflowerblue', edgecolor='black', height=0.2, label='95% CI' if i == 0 else "")
-            ax.plot([mean - ci95,mean - ci95], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
-            ax.plot([mean + ci95,mean + ci95], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
+            ax.barh(i, 2 * ci95, left=mean - ci95, color='cornflowerblue', edgecolor='black', height=0.1, label='95% CI' if i == 0 else "")
+            ax.plot([mean - ci95,mean - ci95], [i - 0.075, i + 0.075], color='black', linewidth=1.5)
+            ax.plot([mean + ci95,mean + ci95], [i - 0.075, i + 0.075], color='black', linewidth=1.5)
             # Plot the 80% confidence interval and plot limit lines for every bar
-            ax.barh(i, 2 * ci80, left=mean - ci80, color='royalblue', edgecolor='black', height=0.3, label='80% CI' if i == 0 else "")
-            ax.plot([mean - ci80,mean - ci80], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
-            ax.plot([mean + ci80,mean + ci80], [i - 0.2, i + 0.2], color='black', linewidth=1.5)
+            ax.barh(i, 2 * ci80, left=mean - ci80, color='royalblue', edgecolor='black', height=0.15, label='80% CI' if i == 0 else "")
+            ax.plot([mean - ci80,mean - ci80], [i - 0.1, i + 0.1], color='black', linewidth=1.5)
+            ax.plot([mean + ci80,mean + ci80], [i - 0.1, i + 0.1], color='black', linewidth=1.5)
             
             # Plot the mean value as a vertical line
-            ax.plot([mean, mean], [i - 0.4, i + 0.4], color='black', linewidth=1.5)
+            ax.plot([mean, mean], [i - 0.15, i + 0.15], color='black', linewidth=1.5)
 
         # Plot mean values using a scatterplot
-        mean_values = data.mean(axis=1)
-        ax.scatter(mean_values, np.arange(len(mean_values)), color = 'orange', marker='o',s=500)
+        mean_values = data.mean(axis=0)
+        ax.scatter(mean_values, np.arange(len(mean_values)), color = 'orange', marker='o',s=150)
 
         # Label and ticks
         ax.set_yticks(range(len(data.columns)))
@@ -1160,6 +1160,11 @@ def visualizing_uncertainty():
     # Only obtain data within the same value range 
     error_bar_data = df[['seat height', 'price', 'length','width','height']]
 
+    graded_error_bar_data = pd.DataFrame({
+        'Acc < 28': df.loc[df['acceleration'] < 28, 'max speed'],
+        'Acc >= 28': df.loc[df['acceleration'] >= 28, 'max speed']
+    })
+
     quantile_dot_plot_data = df['price']
 
     # Define figure axis
@@ -1169,7 +1174,7 @@ def visualizing_uncertainty():
 
     quantile_dot_plot(quantile_dot_plot_data, axes[1], 40, 10)
 
-    graded_error_bar_plot(error_bar_data, axes[2])
+    graded_error_bar_plot(graded_error_bar_data, axes[2])
 
     frequency_plot(0.1)
 
@@ -1178,7 +1183,7 @@ def visualizing_uncertainty():
     fig.savefig('Images/visualizing_uncertainty.png')
 
 
-ef visualizing_probability():
+def visualizing_probability():
     def hyphothetical_outcome_plot(data1, data2, sample_size):
 
         # Create plot
@@ -1196,7 +1201,7 @@ ef visualizing_probability():
         # Set ax ticks
         ax.set_yticks([y1,y2], [data1.name, data2.name])
 
-        # Set x limits to max and min from the data (Matplotlib doesnt update it automatically)
+        # Set x limits to max and min from the data (Matplotlib doesn't update it automatically)
         xmax = max(chain(data1, data2))
         xmin = min(chain(data1, data2))
 

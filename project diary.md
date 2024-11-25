@@ -207,13 +207,37 @@ I want to focus on the most interesting uncertainty plots:
 - Graded error bars
 - Quantile dot plot
 
-These are regarded as very useful in the book. 
+These are regarded as very useful in the book.
 
-# Hipothetical outcome plots
+Error bar plots were simple. There is an aditional parameter called yerr that automatically adds the error to the regular barplot. Overall, really useful and conveys good visual information about the mean and variance of the data on simple terms.
+
+Graded error bars and error bars have different purposes. Error bars is meant to show different variables, as the height of the bar can be significantly different that the plot will convey information well enough. On the other hand, Graded error bars convey aditional information, although the variables must remain in similar ranges and variances. In my case, not enough variables (4 at least) shared a similar variance and mean to be interesting. That is why I think graded error bars are meant to visualizethe same variable under certain subsets, like acceleration variable values in my case. Its also a plot I had to calculate all features used, such as mean standard deviation, confidence interval and margin error.  
+
+Quantile dot plot provides an excelent and intuitive visualization of probability using discrete elements. However, it has one critica flaw, it has lots of figure design parameters regarding circle placements.
+- Do I limit the size of the dots? 
+- The amount of columns?
+- The total amount of dots?
+
+This makes for a very huge variety of options that only makes it viable for data presentation, not exploration. 
+
+# Hypothetical outcome plots
+
+Hypothetical outcome plots follow a similar logic to quantile dot plots. They are plots used to present data, present probability in a discrete manner that provides a intuitive visualization. 
+
+Other than that, its curious how the plot is actually a gif. Personally, it was great training for this types of images.
+
+Its important to know in this visualizations to set the x visualization ranges. Matplotlib wont update them automatically from image to image, so you must set it from the start.
+
 
 # When barplots fail
-- Small amount of data
-- Bigger amounts of data
+
+Barplots are not allways the go to. They sometimes have problems that cant be helped. I present two such cases:
+
+- The values to display are all very high and very similar. In that case, the bars are all very high, and not much can be apreciated relating to value differences. An alternative is a ordered scatterplot, or dot plot. Plot points only where the bar would have ended. Then you can jump over the long bar body, making it easier to compare value. This is the alternative when we dont have too much data. To simulate the barplot, the best is to use a scatterplot and plot one point per line. Then, use the axis for visual comfortability. 
+
+- When we have larger amounts of data, an ordered heatmap is the go to. The book makes a better job at exemplifying this than I do. Its more useful with ORDERED data, like time series. In my case, I had to try something. Using seaborn and ordering the values creates this plot. 
+
+
 # Asociations between two variables
 - Correlogram
 - Buble chart
