@@ -1332,5 +1332,134 @@ def when_barplots_fail():
     fig.savefig('Images/when_barplots_fail.png')
 
 
+def visualizating_asociations_between_two_variables():
+    def correlogram(df):
+        from itertools import product
 
-visualizing_uncertainty()
+        # Create plot
+        fig, ax = plt.subplots(figsize=(8,8))
+
+        # Obtain variables correlation
+        correlation = df.corr()
+
+        # Obtain the size and labels of the matrix
+        n_variables, _ = correlation.shape
+        labels = correlation.columns
+
+        # Flatten the correlation matrix to a 1D array
+        correlation = correlation.to_numpy().flatten()
+
+        # Obtain x and y coordinate values
+        # Step 1: Obtain the x and y coordinates of every point in the scatter. Here, first param are the row values and second the column values
+        x_values, y_values = np.meshgrid(np.arange(n_variables), np.arange(n_variables)[::-1])
+        # Step 2: Flatten the resulting coordinates
+        x_values, y_values = x_values.ravel(), y_values.ravel()
+
+        # Obtain sizes for the scatterplot
+        sizes = np.abs(correlation) * 1000
+
+        # Obtain colors for the scatterplot
+        colors = plt.cm.coolwarm((correlation + 1)/2) # normalize from 0 to 1 values
+
+        # Create the correlogram using scatter
+        ax.scatter(x_values, y_values, s=sizes, color=colors, edgecolors="k", lw=0.5 )
+
+        # Format axes
+        ax.set_xticks(range(n_variables))
+        ax.set_yticks(range(n_variables))
+        ax.set_xticklabels(labels, rotation=45, ha='right')
+        ax.set_yticklabels(labels[::-1])
+        ax.xaxis.tick_top()  # Move x-axis labels to the top
+
+        # Add a colorbar
+        sm = plt.cm.ScalarMappable(cmap='coolwarm', norm=plt.Normalize(vmin=-1, vmax=1))
+        sm.set_array([])
+        cbar = plt.colorbar(sm, ax=ax)
+        cbar.set_label('Correlation Coefficient')
+
+        ax.set_title('Correlogram plot', pad=20)
+        fig.tight_layout()
+        fig.savefig('Images/correlogram_plot.png')
+
+    def buble_chart(data):
+        '''
+
+        :param data: dataframe with 3 columns. Each column will be used for x,y, size values respectively
+        :return:
+        '''
+        # Build plot
+        fig, ax = plt.subplots(figsize=(8,8))
+
+        # Obtain columns
+        columns = data.columns
+
+        # Normalize and create adequate buble sizes
+        sizes = data[columns[-1]] / data[columns[-1]].max() * 500 # * 500 for adequate buble sizes
+
+        # Create the plot
+        ax.scatter(data[columns[0]], data[columns[1]], s=sizes, edgecolors='k', lw=0.4)
+
+        # Format the axes
+        ax.set_title('Buble chart plot')
+        ax.set_xlabel(columns[0])
+        ax.set_ylabel(columns[1])
+
+        # Save the image
+        fig.tight_layout()
+        fig.savefig('Images/buble_chart_plot.png')
+
+
+
+    def scatterplot_matrix(data):
+        # Obtain labels and number of variables
+        labels = data.columns
+        n_variables = len(labels)
+
+        # Create the plot
+        fig, axes = plt.subplots(n_variables, n_variables, figsize=(n_variables*2, n_variables*2))
+
+        for i, x_label in enumerate(labels):
+            for j, y_label in enumerate(labels):
+                # Obtain the value of each feature
+                x_data = data[x_label]
+                y_data = data[y_label]
+
+                # Make a scatterplot on the corresponding axes
+                axes[j, i].scatter(x_data, y_data, edgecolors='k', lw=0.2)
+
+                # Set axis labels if nbecessary
+                if i == 0:
+                    axes[j, i].set_ylabel(y_label)
+
+                if j == n_variables-1:
+                    axes[j, i].set_xlabel(x_label)
+
+        # Set suptitle
+        fig.suptitle('Scatterplot matrix')
+
+        # Save the image
+        fig.tight_layout()
+        fig.savefig('Images/scatterplot_matrix.png')
+
+
+
+
+
+    def slopegraph():
+        pass
+
+
+    df = obtain_dataset()
+
+    correlogram_data = df[['price', 'weight full', 'gasoline capacity', 'max speed', 'acceleration']]
+
+    buble_chart_data = df[['price', 'weight full', 'gasoline capacity']]
+
+    correlogram(correlogram_data)
+
+    buble_chart(buble_chart_data)
+
+    scatterplot_matrix(correlogram_data)
+
+
+visualizating_asociations_between_two_variables()

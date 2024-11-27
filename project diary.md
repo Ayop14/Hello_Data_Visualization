@@ -242,8 +242,10 @@ Barplots are not allways the go to. They sometimes have problems that cant be he
 - Correlogram
 - Buble chart
 - scatterplots in matrix comparations
-- paired data
 - slopegraph
+
+# Dimensionality reduction
+- PCA visualization
 
 # Time series
 connected scatterplot
