@@ -239,12 +239,20 @@ Barplots are not allways the go to. They sometimes have problems that cant be he
 
 
 # Asociations between two variables
-- Correlogram
-- Buble chart
-- scatterplots in matrix comparations
-- slopegraph
 
-# Dimensionality reduction
+The objective is to obtain information from the data. Works well for both experimentation and presentation. We can obtain information about the relation of two or more variables using correlograms, bubble charts, scatterplot matrixes and slopegraphs.
+
+- Correlograms has been so far one of my favorite visualizations. So much information in a tight visualization. Correlograms are often presented as heatmaps, but that provides too much space/importance to to correlations close to 0. Efectively, we wante those away. We can solve the issue with the recomendation from the book, set the absolute value of the correlation proportional to the circle size. Using the method corr from pandas as well as a clever grid design with numpy's meshgrid method we can complete the plot. Its also interesting to know you can map colors to numbers fairly quickly in a continous scale using pyplot cm (colormap) module. 
+
+- Bubble charts also provide certain informations about variables, although they are not so easy to spot as with correlograms. They are easy to implement using s parameter from the scater method
+
+- Scatter matrix makes a great job delivering information. In this case wasnt excevily representative of the power of this visualization, but I bet under some circumstances it will be. Its simple to implement creating a subplot matrix
+
+- Slopegraphs are specially useful to present how avariable evolves at discrete time intervals. In my cas I have no such data... But if one day I have it, I will have the visualization reday, haha!
+
+
+# Visualizing dimensionality reduction
+
 - PCA visualization
 
 # Time series

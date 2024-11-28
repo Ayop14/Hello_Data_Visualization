@@ -1442,11 +1442,35 @@ def visualizating_asociations_between_two_variables():
         fig.savefig('Images/scatterplot_matrix.png')
 
 
+    def slopegraph(data, x_labels):
+        # Create the plot
+        fig, ax = plt.subplots()
+
+        # Obtain shape
+        n_rows, n_columns = data.shape
+
+        # Plot each row as a time series
+        for i in range(n_rows):
+            # Plot the sample as a time series
+            ax.plot(data.iloc[i], marker='o')
+
+            # Set the name of each plot right in last column
+            ax.text(n_columns-1 + 0.1, data.iloc[i, -1], f'Sample {i}', fontsize=10, ha='left', va='center')
+
+
+        ax.set_xticks(np.arange(n_columns), x_labels) # Format ticks
+        ax.set_title('Slopegraph plot')
+        ax.set_ylabel('Slopegraph Units')
+
+        # Deactivate black box lines (spines)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
 
 
 
-    def slopegraph():
-        pass
+        # Save the image
+        fig.tight_layout()
+        fig.savefig('Images/slopegraph.png')
 
 
     df = obtain_dataset()
@@ -1455,11 +1479,15 @@ def visualizating_asociations_between_two_variables():
 
     buble_chart_data = df[['price', 'weight full', 'gasoline capacity']]
 
+    slopegraph_data = df[['length','width','height']]
+
     correlogram(correlogram_data)
 
     buble_chart(buble_chart_data)
 
     scatterplot_matrix(correlogram_data)
+
+    slopegraph(slopegraph_data.iloc[[1,2,4]], slopegraph_data.columns)
 
 
 visualizating_asociations_between_two_variables()
