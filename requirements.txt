@@ -5,3 +5,4 @@ seaborn
 joypy
 statsmodels
 kaleido
+scikit-learn

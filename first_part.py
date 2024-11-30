@@ -13,6 +13,8 @@ from matplotlib.patches import Ellipse
 from scipy import stats
 from matplotlib.animation import FuncAnimation, PillowWriter
 from itertools import chain
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 
 type_to_shape_dict = {
@@ -1490,4 +1492,47 @@ def visualizating_asociations_between_two_variables():
     slopegraph(slopegraph_data.iloc[[1,2,4]], slopegraph_data.columns)
 
 
-visualizating_asociations_between_two_variables()
+def visualizing_dimensionality_reduction():
+    def PC_plot(X, y):
+
+        # Create the plot
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        # Create and apply PCA
+        pca = PCA(n_components=2)
+        X_pca = pca.fit_transform(X)
+
+        # Transform labels to colors
+        colors = y.map(type_to_color)
+
+        # Plot scatterplot of the reduced data
+        scatter = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=colors, cmap='viridis', s=50, alpha=0.7)
+
+        # Add arrows for the principal components
+        components = pca.components_  # Principal component directions
+        for i, vector in enumerate(components):
+            plt.arrow(0, 0, vector[0]*3, vector[1]*3, color='black', head_width=0.05, width=0.01)
+            plt.text(vector[0] * 1.1 * 3 - 0.5, vector[1] * 3, f"PC{i + 1}", color='black', fontsize=12)
+
+        # Add labels and legend
+        plt.xlabel('Principal Component 1')
+        plt.ylabel('Principal Component 2')
+        plt.title('Scatterplot with Principal Component Arrows')
+        plt.colorbar(scatter, label='Target')
+        plt.grid()
+        plt.axhline(0, color='gray', linewidth=0.5, linestyle='--')
+        plt.axvline(0, color='gray', linewidth=0.5, linestyle='--')
+        plt.show()
+
+    df = obtain_dataset()
+
+    pca_X = df[['price', 'max speed', 'gasoline capacity']]
+    filter = pca_X.notna().all(axis=1)
+    pca_X = pca_X[filter] # Drop nulls from the data
+    pca_X = StandardScaler().fit_transform(pca_X) # Standarize data
+    pca_y = df['bike type']
+    pca_y = pca_y[filter]
+
+    PC_plot(pca_X, pca_y)
+
+visualizing_dimensionality_reduction()
