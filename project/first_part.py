@@ -1,20 +1,29 @@
-
+# Import data processing libraries
 import pandas as pd
-from read_data import obtain_dataset
+import numpy as np
+from itertools import chain
+
+# Import visualization libraries
+import seaborn as sns
+from joypy import joyplot
+import plotly.express as px
+
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-import numpy as np
-import seaborn as sns
-from scipy.stats import probplot, gaussian_kde
-from joypy import joyplot
-from statsmodels.graphics.mosaicplot import mosaic
-import plotly.express as px
 from matplotlib.patches import Ellipse
-from scipy import stats
 from matplotlib.animation import FuncAnimation, PillowWriter
-from itertools import chain
+
+# Import math libraries
+from scipy.stats import probplot, gaussian_kde, t
+
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+
+from statsmodels.graphics.mosaicplot import mosaic
+from statsmodels.tsa.seasonal import seasonal_decompose
+
+# Import data reading 
+from read_data import obtain_dataset
 
 
 type_to_shape_dict = {
@@ -310,11 +319,13 @@ def color_powerpoint():
     # Obtain data
     df = obtain_dataset()
     # Scatterplot visualization
-    color_scatterplot(df['torque'], df['weight full'], df['seat height'], 'Images/Visualizing color importance - scatterplot')
+    color_scatterplot(df['torque'], df['weight full'], df['seat height'], 'project/Images/Visualizing color importancescatterplot.png')
 
     # Histogram comparison
     aux = df.loc[df['bike type'] == 'Trail', ['name', 'price']]
-    histogram_color_comparison(aux['price'], aux['name'],1, 'Images/Visualizing histogram color effect')
+    histogram_color_comparison(aux['price'], aux['name'],1, 'project/Images/Visualizing histogram color effect.png')
+
+color_powerpoint()
 
 def different_amounts_visualization():
     def grouped_bars_plot(matrix_data, ax):
@@ -1042,7 +1053,7 @@ def visualizing_uncertainty():
  
         def calculate_confidence_interval(data, confidence=0.95):
             mean_std = data.sem()
-            critical_value = stats.t.ppf(1 - (1- confidence) / 2, len(data)-1)
+            critical_value = t.ppf(1 - (1- confidence) / 2, len(data)-1)
             error_margin = critical_value * mean_std
             return error_margin
 
@@ -1535,4 +1546,80 @@ def visualizing_dimensionality_reduction():
 
     PC_plot(pca_X, pca_y)
 
-visualizing_dimensionality_reduction()
+
+def visualizing_more_time_series():
+
+    def connected_scatterplot(data):
+        # Obtain data from dataframe
+        labels = [f'Step {i + 1}' for i in range(len(data))] # Example labels
+        x = data.iloc[:,0]
+        y = data.iloc[:,1]
+
+        # Create the plot 
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        # Plot the connected scatterplot
+        ax.plot(x, y, marker='o', linestyle='-', color='blue', label='Path')
+
+        # Plot the labels asociated with each point
+        for i, label in enumerate(labels):
+            ax.text(x.iloc[i], y.iloc[i] + 0.1, label, fontsize=8, ha='center') 
+
+        # Format the axes
+        ax.set_title("Connected Scatterplot")
+        ax.set_xlabel(x.name)
+        ax.set_ylabel(y.name)
+        ax.grid(alpha=0.3)
+        # ax.legend() Dont add legend with just one 
+
+        # Save the plot
+        fig.tight_layout()
+        fig.savefig('Images/connected_scatterplot.png')
+
+    def divide_time_series_into_components(data):
+
+        # Perform seasonal decomposition
+        result = seasonal_decompose(data, model='additive', period=10)  # Assuming monthly seasonality (30 days)
+
+        # Extract trend, seasonal fluctuations and noise
+        trend = result.trend
+        seasonal_fluctuations = result.seasonal
+        noise = result.resid
+
+        # Create the plot
+        fig, axes = plt.subplots(4,1, figsize=(6, 8))
+
+        # Plot original Data
+        axes[0].plot(data)
+        axes[0].set_title('Original data')
+
+        # Plot trend
+        axes[1].plot(trend)
+        axes[1].set_title('Trend')
+
+        # Plot seasonal fluctuations
+        axes[2].plot(seasonal_fluctuations)
+        axes[2].set_title('Seasonal fluctuations')
+
+        # Plot noise
+        axes[3].plot(noise)
+        axes[3].set_title('Noise')
+
+        fig.suptitle(f'{data.name} decomposition')
+        fig.tight_layout()
+        fig.savefig('Images/divide_time_series.png')
+
+
+    df = obtain_dataset()
+
+    connected_scatterplot_data = df[['weight full', 'gasoline capacity']]
+    connected_scatterplot_data = connected_scatterplot_data.dropna(how='any')
+
+    components_data = df['price'].dropna(how='any')
+
+    connected_scatterplot(connected_scatterplot_data.iloc[:7])
+
+    divide_time_series_into_components(components_data)
+
+
+visualizing_more_time_series()
