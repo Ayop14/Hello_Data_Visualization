@@ -253,10 +253,22 @@ The objective is to obtain information from the data. Works well for both experi
 
 # Visualizing dimensionality reduction
 
-- PCA visualization
+Dimensionality reduction is a specially useful technique both in data science and machine learning. As such,, I wanted to be able to visualize the information that *PCA* provides.
 
-# Time series
-connected scatterplot
-separate time series into its components
+The most direct implementation is to visualize the first principal components. With the direct implementation that scikit learn provides its easy to obtain and plot. I dont want to dive deep into dimensionality reduction, since it takes a huge role later in the roadmap. 
 
-# Practical overview
+# Multivariate time series
+Next step is to visualize time series with two elements or variables at every point in time, and study its behavior. One of the best ways is using a connected scatterplot, where every point reflects the values of the two variables, and the connect it with next point in the timeline using a line. 
+
+Connected scatterplot was extremely easy to implement, since the regular pyplot plot function allows values to not be in order in the y axis, so a regular plot does the trick. 
+
+In my case, I dont have time series data, so I gotta use whatever feature I have in the dataset and consider it as such. Im excited the moment I have real data and I can use this visualization to obtain information from the data. 
+
+# Separate time series into its components
+Time series can be divided in trend, seasonal fluctuation and noise. This separation allows to obtain information from the data in all three regards. One of the most used ways is using LOEES. 
+
+Statsmodels implements iut and its extremely easy to use. Using previous plotting techniques I learned previously it was a matter of plotting every time series in a independent plot. 
+
+# Practical rework
+
+Last step on this project is to turn this repository into a practical guide. Create a different repository directory so its more organized, and I can access the different visualizations on the easiest way possible. 

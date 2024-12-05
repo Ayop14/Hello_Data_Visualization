@@ -55,7 +55,7 @@ def weight_visualization():
     plt.axvline(weight.quantile(0.75), color='red')
     plt.axvline(weight.quantile(0.25), color='red')
     # Save the figure
-    plt.savefig('Images/weight_histogram.png')
+    plt.savefig('project/Images/weight_histogram.png')
 
 # Plot the relation between consumption, acceleration, max speed, bike tipe and weight
 def relation_5_features():
@@ -133,7 +133,7 @@ def relation_5_features():
     ax.add_artist(leg1)
     ax.add_artist(leg2)
 
-    fig.savefig('Images/5 feature visualization initial')
+    fig.savefig('project/Images/5 feature visualization initial')
 
 def log_info():
     def log_visualization(data, store):
@@ -181,7 +181,7 @@ def log_info():
 
     df = obtain_dataset()
     acceleration = df['acceleration']
-    log_visualization(acceleration, 'Images/Visualizing log acceleration initial')
+    log_visualization(acceleration, 'project/Images/Visualizing log acceleration initial')
 
 def polar_coordinate_visualization():
     def polar(data, categories, type_to_shape, store):
@@ -246,7 +246,7 @@ def polar_coordinate_visualization():
 
     # obtain data
     df = obtain_dataset()
-    polar(df['gasoline capacity'], df['bike type'], type_to_shape_dict, 'Images/Visualizing polar coordinates')
+    polar(df['gasoline capacity'], df['bike type'], type_to_shape_dict, 'project/Images/Visualizing polar coordinates')
 
 def color_powerpoint():
     def color_scatterplot(df_1, df_2, df_3, store):
@@ -433,7 +433,7 @@ def different_amounts_visualization():
     # Show the plot
     plt.tight_layout()
 
-    plt.savefig('Images/Visualizing_different_amounts.png')
+    plt.savefig('project/Images/Visualizing_different_amounts.png')
 
 def visualizing_single_distribution(feature):
     def histogram(data, ax):
@@ -530,11 +530,11 @@ def visualizing_single_distribution(feature):
     quantile_quantile_plot(df[feature], axes[1,1])
 
     plt.tight_layout()
-    fig.savefig('Images/Visualizing_single_distribution.png')
+    fig.savefig('project/Images/Visualizing_single_distribution.png')
 
 
     # 2 Figure: Comparing Histogram parameters
-    histogram_parameter_comparison(df[feature], 'Images/Visualizing_single_distribution_hist_params.png')
+    histogram_parameter_comparison(df[feature], 'project/Images/Visualizing_single_distribution_hist_params.png')
 
 
 def visualizing_multiple_distributions():
@@ -735,7 +735,7 @@ def visualizing_multiple_distributions():
 
     fig.tight_layout()
 
-    fig.savefig('Images/Visualizing_multiple_distributions.png')
+    fig.savefig('project/Images/Visualizing_multiple_distributions.png')
 
     # Clean plot
     plt.clf()
@@ -851,7 +851,7 @@ def proportions_visualization():
     fig.tight_layout()
 
     # Save plot
-    fig.savefig('Images/Visualizing proportions.png')
+    fig.savefig('project/Images/Visualizing proportions.png')
 
 
 def multiple_group_proportions_visualizations():
@@ -877,7 +877,7 @@ def multiple_group_proportions_visualizations():
         mosaic(mosaic_data,  title='Mosaic Plot', labelizer=custom_labelizer, ax=ax)
 
         # Save plot
-        fig.savefig('Images/Visualizing_mosaic_plot.png')
+        fig.savefig('project/Images/Visualizing_mosaic_plot.png')
 
 
     def tree_map_plot(data):
@@ -897,7 +897,7 @@ def multiple_group_proportions_visualizations():
         )
 
         # Show the plot
-        fig.write_image("Images/Visualizing_treemap_plot.png")
+        fig.write_image("project/Images/Visualizing_treemap_plot.png")
 
 
     def paralel_set_plot(data):
@@ -917,7 +917,7 @@ def multiple_group_proportions_visualizations():
         )
 
         # Show the plot
-        fig.write_image('Images/Visualizing_paralel_set_plot.png')
+        fig.write_image('project/Images/Visualizing_paralel_set_plot.png')
 
 
     def density_comparison_matrix(data, plot_range=25):
@@ -977,7 +977,7 @@ def multiple_group_proportions_visualizations():
 
         # Save the figure
         fig.tight_layout()
-        fig.savefig('Images/Visualizing_Density_Comparison.png')
+        fig.savefig('project/Images/Visualizing_Density_Comparison.png')
 
     
     df = obtain_dataset()
@@ -1030,7 +1030,7 @@ def visualizing_uncertainty():
         ax.set_title(f"Probability: {probability * 100:.1f}%")
         # Save the image
         fig.tight_layout()
-        fig.savefig('Images/Frequency_plot.png')
+        fig.savefig('project/Images/Frequency_plot.png')
 
     def error_bar_plot(data, ax):
         
@@ -1193,7 +1193,7 @@ def visualizing_uncertainty():
 
     fig.tight_layout()
 
-    fig.savefig('Images/visualizing_uncertainty.png')
+    fig.savefig('project/Images/visualizing_uncertainty.png')
 
 
 def visualizing_probability():
@@ -1246,7 +1246,7 @@ def visualizing_probability():
         anim = FuncAnimation(fig, update, frames=sample_size, interval=500, blit=False)
 
         # Save as GIF
-        anim.save("Images/hypothetical_outcome_plot.gif", writer=PillowWriter(fps=2))
+        anim.save("project/Images/hypothetical_outcome_plot.gif", writer=PillowWriter(fps=2))
         plt.close()
 
 
@@ -1342,7 +1342,7 @@ def when_barplots_fail():
 
     # Save the figure
     plt.tight_layout()
-    fig.savefig('Images/when_barplots_fail.png')
+    fig.savefig('project/Images/when_barplots_fail.png')
 
 
 def visualizating_asociations_between_two_variables():
@@ -1392,7 +1392,7 @@ def visualizating_asociations_between_two_variables():
 
         ax.set_title('Correlogram plot', pad=20)
         fig.tight_layout()
-        fig.savefig('Images/correlogram_plot.png')
+        fig.savefig('project/Images/correlogram_plot.png')
 
     def buble_chart(data):
         '''
@@ -1419,7 +1419,7 @@ def visualizating_asociations_between_two_variables():
 
         # Save the image
         fig.tight_layout()
-        fig.savefig('Images/buble_chart_plot.png')
+        fig.savefig('project/Images/buble_chart_plot.png')
 
 
 
@@ -1452,7 +1452,7 @@ def visualizating_asociations_between_two_variables():
 
         # Save the image
         fig.tight_layout()
-        fig.savefig('Images/scatterplot_matrix.png')
+        fig.savefig('project/Images/scatterplot_matrix.png')
 
 
     def slopegraph(data, x_labels):
@@ -1483,7 +1483,7 @@ def visualizating_asociations_between_two_variables():
 
         # Save the image
         fig.tight_layout()
-        fig.savefig('Images/slopegraph.png')
+        fig.savefig('project/Images/slopegraph.png')
 
 
     df = obtain_dataset()
@@ -1517,23 +1517,23 @@ def visualizing_dimensionality_reduction():
         colors = y.map(type_to_color)
 
         # Plot scatterplot of the reduced data
-        scatter = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=colors, cmap='viridis', s=50, alpha=0.7)
+        scatter = ax.scatter(X_pca[:, 0], X_pca[:, 1], c=colors, s=50, alpha=0.7)
 
         # Add arrows for the principal components
         components = pca.components_  # Principal component directions
         for i, vector in enumerate(components):
-            plt.arrow(0, 0, vector[0]*3, vector[1]*3, color='black', head_width=0.05, width=0.01)
-            plt.text(vector[0] * 1.1 * 3 - 0.5, vector[1] * 3, f"PC{i + 1}", color='black', fontsize=12)
+            ax.arrow(0, 0, vector[0]*3, vector[1]*3, color='black', head_width=0.05, width=0.01)
+            ax.text(vector[0] * 1.1 * 3 - 0.5, vector[1] * 3, f"PC{i + 1}", color='black', fontsize=12)
 
         # Add labels and legend
-        plt.xlabel('Principal Component 1')
-        plt.ylabel('Principal Component 2')
-        plt.title('Scatterplot with Principal Component Arrows')
+        ax.set_xlabel('Principal Component 1')
+        ax.set_ylabel('Principal Component 2')
+        ax.set_title('Scatterplot with Principal Component Arrows')
         plt.colorbar(scatter, label='Target')
-        plt.grid()
-        plt.axhline(0, color='gray', linewidth=0.5, linestyle='--')
-        plt.axvline(0, color='gray', linewidth=0.5, linestyle='--')
-        plt.show()
+        ax.grid()
+        ax.axhline(0, color='gray', linewidth=0.5, linestyle='--')
+        ax.axvline(0, color='gray', linewidth=0.5, linestyle='--')
+        fig.savefig('project/Images/PCA_plot.png')
 
     df = obtain_dataset()
 
@@ -1546,6 +1546,7 @@ def visualizing_dimensionality_reduction():
 
     PC_plot(pca_X, pca_y)
 
+visualizing_dimensionality_reduction()
 
 def visualizing_more_time_series():
 
@@ -1574,7 +1575,7 @@ def visualizing_more_time_series():
 
         # Save the plot
         fig.tight_layout()
-        fig.savefig('Images/connected_scatterplot.png')
+        fig.savefig('project/Images/connected_scatterplot.png')
 
     def divide_time_series_into_components(data):
 
@@ -1607,7 +1608,7 @@ def visualizing_more_time_series():
 
         fig.suptitle(f'{data.name} decomposition')
         fig.tight_layout()
-        fig.savefig('Images/divide_time_series.png')
+        fig.savefig('project/Images/divide_time_series.png')
 
 
     df = obtain_dataset()
@@ -1622,4 +1623,3 @@ def visualizing_more_time_series():
     divide_time_series_into_components(components_data)
 
 
-visualizing_more_time_series()
