@@ -98,7 +98,7 @@ Next, for a cumulative plot its not as easy as making the acum operation. As the
 
 Quantile Quantile plots do not have native support in matplotlib. Seaborn offers a similar function, but looks more like a regular scatterplot. Its better to use scipy for that matter. With the math covered, its easier to make manually the plot. 
 
-Finally, the histogram parameter comaprison. The number of bins shown. As the number increases, the bins are progresively thinner to a point where they look sparce. Too low and it gives the impression there is data where there truly isnt. Too little bins and the sparcity prevents from obtaining useful information. Aditionally, There is also a kernel estimator parameter for density plots. However, gaussian plot is so commonly used many libraries (Like seaborn) does not offer a kernel alternative. I could implement it on my own, but there is truly no necessity.
+Finally, the histogram parameter comparison. The number of bins shown. As the number increases, the bins are progresively thinner to a point where they look sparce. Too low and it gives the impression there is data where there truly isnt. Too little bins and the sparcity prevents from obtaining useful information. Aditionally, There is also a kernel estimator parameter for density plots. However, gaussian plot is so commonly used many libraries (Like seaborn) does not offer a kernel alternative. I could implement it on my own, but there is truly no necessity.
 Regarding histogram parameters, in this case I'd use 19 bins. It allows for the balance previously mentioned. 
 
 
