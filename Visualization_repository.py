@@ -293,14 +293,20 @@ def quantile_quantile_plot(data, ax):
     ax.set_ylabel('Sample Quantiles')
 
 
-def box_plot(matrix_data, ax):
+def box_plot(data, ax):
     '''
-        :param matrix_data: Matrix where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
+        :param data: pandas DataFrame or Series where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
         :param ax: axis to make the plot
     '''
     # Transform data for the plot
-    columns= matrix_data.columns
-    distributions = [matrix_data[col].dropna() for col in matrix_data.columns] # Filter null values
+    if type(data) is pd.DataFrame:
+        columns= data.columns
+        distributions = [data[col].dropna() for col in data.columns] # Filter null values
+    elif type(data) is pd.Series:
+        columns = [data.name]
+        distributions = [data.dropna()]
+    else:
+        raise TypeError('Input must be pandas DataFrame or Series')
 
     # Plot the boxplot
     ax.boxplot(distributions, tick_labels=columns,
@@ -309,6 +315,7 @@ def box_plot(matrix_data, ax):
                showcaps=None, # Caps at the end of the whiskers
                showbox=None, # Show the central box
                showfliers=None) # Show the outliers beyond the caps
+
     # Rotate labels
     ax.set_xticks(np.arange(0,len(columns)) + 1, columns, rotation=45)
 
@@ -316,14 +323,25 @@ def box_plot(matrix_data, ax):
     ax.grid(axis='y', which='major', linestyle='--', lw=1, color='gray', alpha=0.4)
 
     # Add title and labels
-    ax.set_title('Boxplot of Multiple Distributions')
+    ax.set_title('Boxplot')
     ax.set_ylabel('Value units')
 
 
-def violin_plot(matrix_data, ax):
+def violin_plot(data, ax):
+    '''
+        :param data: pandas DataFrame or Series where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
+        :param ax: axis to make the plot
+    '''
     # Transform data for the plot
-    columns = matrix_data.columns
-    distributions = [matrix_data[col].dropna() for col in matrix_data.columns]  # Filter null values
+    if type(data) is pd.DataFrame:
+        columns = data.columns
+        distributions = [data[col].dropna() for col in data.columns]  # Filter null values
+    elif type(data) is pd.Series:
+        columns = [data.name]
+        distributions = [data.dropna()]
+    else:
+        raise TypeError('Input must be pandas DataFrame or Series')
+
 
     # Plot the violin plot
     ax.violinplot(distributions,
@@ -338,8 +356,103 @@ def violin_plot(matrix_data, ax):
     # Set grid lines
     ax.grid(axis='y', which='major', linestyle='--', color='gray', alpha=0.4)
 
+    # For the plot to be centered, set x limitations
+    ax.set_xlim(0.5, len(distributions) + 0.5)
+
     # Add title and labels
-    ax.set_title('Violin Plot of Multiple Distribution')
+    ax.set_title('Violin Plot')
+    ax.set_ylabel('Values')
+
+def strip_chart(data, ax, jittering_strength=0.1):
+    '''
+        :param data: pandas DataFrame or Series where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
+        :param ax: axis to make the plot
+    '''
+    # You can also change uniform jitter to density-based jitter. (The bigger the density the stronger the jitter)
+    def density_based_jitter(distribution):
+        # Obtain density
+        kde = gaussian_kde(distribution)
+        densities = kde(distribution)
+        # Normalize densities to range between 0 and 0.3
+        densities = (densities - densities.min()) / (densities.max() - densities.min())
+        # Jittering inversely proportional to density (higher density -> larger jitter)
+        jitter = np.random.uniform(-1, 1, size=len(distribution)) * densities * jittering_strength
+        return jitter
+
+    # Transform data for the plot
+    if type(data) is pd.DataFrame:
+        columns = data.columns
+        distributions = [data[col].dropna() for col in data.columns]  # Filter null values
+    elif type(data) is pd.Series:
+        columns = [data.name]
+        distributions = [data.dropna()]
+    else:
+        raise TypeError('Input must be pandas DataFrame or Series')
+
+    # Plot each of the distributions
+    for i, distribution in enumerate(distributions):
+        jittering = np.random.uniform(-jittering_strength, jittering_strength, size=len(distribution))
+        ax.scatter(np.ones(len(distribution)) * (i+1) + jittering, distribution, color='blue', alpha=0.7, s=40)
+
+    # Set the labels for the x-axis
+    ax.set_xticks([i+1 for i in range(len(distributions))], columns, rotation=45)
+
+    # For the plot to be centered, set x limitations
+    ax.set_xlim(0.5, len(distributions) + 0.5)
+
+    # Add title and labels
+    ax.set_title('Strip Chart')
+    ax.set_ylabel('Values')
+
+
+def sina_plot(data, ax, jittering_strength=0.1):
+    '''
+        :param data: pandas DataFrame or Series where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
+        :param ax: axis to make the plot
+    '''
+
+    def density_based_jitter(distribution):
+        # Obtain density
+        kde = gaussian_kde(distribution)
+        densities = kde(distribution)
+        # Normalize densities to range between 0 and 0.3
+        densities = (densities - densities.min()) / (densities.max() - densities.min())
+        # Jittering inversely proportional to density (higher density -> larger jitter)
+        jitter = np.random.uniform(-1, 1, size=len(distribution)) * densities * jittering_strength
+        return jitter
+
+    # Transform data for the plot
+    if type(data) is pd.DataFrame:
+        columns = data.columns
+        distributions = [data[col].dropna() for col in data.columns]  # Filter null values
+    elif type(data) is pd.Series:
+        columns = [data.name]
+        distributions = [data.dropna()]
+    else:
+        raise TypeError('Input must be pandas DataFrame or Series')
+
+    # Violin plot
+    ax.violinplot(distributions,
+                  positions=np.arange(len(distributions)) + 1,
+                  showmeans=False,
+                  showextrema=True,
+                  showmedians=False,
+                  quantiles=None)
+
+    # Strip chart
+    # Plot each of the distributions
+    for i, distribution in enumerate(distributions):
+        jittering = density_based_jitter(distribution)
+        ax.scatter(np.ones(len(distribution)) * (i+1) + jittering, distribution, color='blue', alpha=0.7, s=30)
+
+    # Set the labels for the x-axis
+    ax.set_xticks([i + 1 for i in range(len(distributions))], columns,
+                  rotation=45)
+
+    # For the plot to be centered, set x limitations
+    ax.set_xlim(0.5, len(distributions) + 0.5)
+
+    ax.set_title('Sina Plot with Density-Based Jitter')
     ax.set_ylabel('Values')
 
 
@@ -349,9 +462,10 @@ from project.read_data import obtain_dataset
 # Pivot data so bike types are column names, and consumption are values
 df = obtain_dataset()
 df = df.pivot(columns='bike type', values='consumption')
+df = df.iloc[:,1]
 
 fig, ax = plt.subplots()
-violin_plot(df, ax)
+sina_plot(df, ax)
 fig.tight_layout()
 fig.show()
 
