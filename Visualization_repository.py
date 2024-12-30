@@ -163,7 +163,7 @@ def grouped_bars_plot(matrix_data, ax):
     ax.set_title('Grouped bar plot')
 
 
-def stacked_bars_plot(matrix_data, ax):
+def stackedbars_plot(matrix_data, ax):
     '''
     :param matrix_data: Matrix where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
         make sure rows have string index with the name of the feature they are measuring. shape ngroups, n_features
@@ -367,6 +367,7 @@ def strip_chart(data, ax, jittering_strength=0.1):
     '''
         :param data: pandas DataFrame or Series where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
         :param ax: axis to make the plot
+        :param jittering_strength: How much jittering can be able to move from the center
     '''
     # You can also change uniform jitter to density-based jitter. (The bigger the density the stronger the jitter)
     def density_based_jitter(distribution):
@@ -456,22 +457,438 @@ def sina_plot(data, ax, jittering_strength=0.1):
     ax.set_ylabel('Values')
 
 
+def overlapping_density_plot(data, ax):
+    '''
+        :param data: pandas DataFrame or Series where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
+        :param ax: axis to make the plot
+    '''
+    # Transform data for the plot
+    if type(data) is pd.DataFrame:
+        columns = data.columns
+        distributions = [data[col].dropna() for col in data.columns]  # Filter null values
+    elif type(data) is pd.Series:
+        distributions = [data.dropna()]
+    else:
+        raise TypeError('Input must be pandas DataFrame or Series')
+
+    # Plot both distributions in ax:
+    # Create density plot (With Seaborn!)
+    for distribution in distributions:
+        sns.kdeplot(distribution, ax=ax, fill=True, linewidth=2, label=distribution.name)
+
+    ax.legend(fontsize='small', loc='upper left')
+    ax.set_title('Overlapping density plot')
+    ax.set_ylabel('Density')
+    ax.set_xlabel('Values')
+
+
+def desity_plot_comparison(data1, data2, ax1, ax2, flexibility=5):
+    '''
+    Plots the general distributions of two data sets, alongside each independent distribution part of the whole
+        :param data1: pandas Series to plot on ax1
+        :param data2: pandas Series to plot on ax2
+        :param ax1: axis to make the data1 plot
+        :param ax2: axis to make the data2 plot
+        :param flexibility: Set the limit to distribution visualization. It will help avoid cutting the plots
+    '''
+    # Join the yaxis
+    # Optionally share y-axis between more subplots
+    ax1.sharey(ax2)
+
+    # Obtain general distribution
+    distribution = pd.concat([data1, data2])
+
+    # Plot general distribution in both axes:
+    # Create density plot (With Seaborn!)
+    sns.kdeplot(distribution, ax=ax1, fill=True, color='lightgrey', linewidth=2, label='Full distribution')
+    sns.kdeplot(distribution, ax=ax2, fill=True, color='lightgrey', linewidth=2, label='Full distribution')
+
+    # Obtain density scaling factor for each distribution
+    scale_factor1 = len(data1) / len(distribution)
+    scale_factor2 = 1 - scale_factor1
+
+    # For distribution1:
+    kde_distrib1 = gaussian_kde(data1)
+
+    # Generate the X values for the kde plot
+    x_vals = np.linspace(data1.min()-1, data1.max()+1, 100)
+    y_vals = kde_distrib1(x_vals)
+
+    # Plot the distribution 1, scaled down by the factor
+    ax1.fill_between(x_vals, y_vals * scale_factor1, color='blue', alpha=0.6, linewidth=3)
+    ax1.set_title(f'{data1.name} Distribution')
+
+    # For distribution2:
+    kde_distrib2 = gaussian_kde(data2)
+
+    # Generate the X values for the kde plot
+    x_vals = np.linspace(data2.min() - flexibility, data2.max()+ flexibility, 100)
+    y_vals = kde_distrib2(x_vals)
+
+    # Plot the distribution 2, scaled down by the factor
+    ax2.fill_between(x_vals, y_vals * scale_factor2, color='blue', alpha=0.6, linewidth=3)
+    ax2.set_title(f'{data2.name} Distribution')
+
+    # Customize the plot
+    # Add a shared title for the subplots
+    # fig.text(0.275, 0.48, "Distribution comparison", ha='center', va='center', fontsize=14)
+    ax1.set_ylabel(f'Scaled density')
+    ax1.set_xlabel('Values')
+    ax2.set_ylabel('Scaled Density')
+    ax2.set_xlabel('Values')
+
+
+
+def age_pyramid_plot(data1, data2, number_of_groups, ax):
+    '''
+        Plots the general distributions of two data sets, alongside each independent distribution part of the whole
+        :param data1: pandas Series to plot on ax1
+        :param data2: pandas Series to plot on ax2
+        :param ax1: axis to make the data1 plot
+        :param ax2: axis to make the data2 plot
+        :param flexibility: Set the limit to distribution visualization. It will help avoid cutting the plots
+    '''
+    def separate_groups():
+        # Create the different bins
+        bins = np.linspace(min(data1.min(), data2.min()), max(data1.max(), data2.max()), number_of_groups + 1)
+        # Bin data1 and order by bin (index)
+        separated_data1 = pd.cut(data1, bins).value_counts().sort_index()
+        # Bin data2 and order by bin (index)
+        separated_data2 = pd.cut(data2, bins).value_counts().sort_index()
+
+        # Change bin index name for clarity
+        index_names = [f'({int(interval.left)}, {int(interval.right)}]' for interval in separated_data1.index]
+        separated_data1.index = index_names
+        separated_data2.index = index_names
+
+        return separated_data1, separated_data2
+
+    # Separate data into bins
+    separated_data1, separated_data2 = separate_groups()
+
+    ax.barh(separated_data1.index, -1 * separated_data1, color='blue', label=data1.name)
+
+    # Plot female data with positive values (right side)
+    ax.barh(separated_data2.index, separated_data2, color='red', label=data2.name)
+
+    # Add labels and title
+    ax.set_title('Age Pyramid')
+    ax.set_xlabel('Price range Count')
+
+    # Add grid and legend
+    ax.grid(True, which='major', axis='x', linestyle='--')
+    ax.legend()
+
+    # Remove x-ticks on the negative side and format labels correctly
+    ax.set_xticks(ax.get_xticks(), [int(abs(tick)) for tick in ax.get_xticks()])
+    ax.set_xlabel('Values')
+
+
+def piechart(data, ax):
+    '''
+    Something like df[feature].value_counts() should be useful for a categorical variable for example
+        :param data: pandas Series where every value is a slice of the pie. The index will be used to name the values
+        :param ax: axis to make the plot
+    '''
+    # Plot the pie chart
+    _, _, autotexts = ax.pie(
+        data,
+        labels=data.index,
+        autopct=lambda pct: f'{int(pct * sum(data) / 100)}',  # Shows exact amounts
+        startangle=90
+    )
+
+    # Display the quantities in white and bold font
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_fontsize(9)
+        autotext.set_weight('bold')
+
+    ax.set_title('Piechart Plot')
+
+
+def vertical_barplot(data, ax):
+    '''
+    Something like df[feature].value_counts() should be useful for a categorical variable for example
+        :param data: pandas Series where every value is bar. The index will be used to name each of the bars
+        :param ax: axis to make the plot
+    '''
+
+    # Make the plot
+    ax.bar(data.index, data.values, orientation='vertical')
+
+    # Customize xticks
+    ax.set_xticklabels(data.index, rotation=45, ha='right')
+
+    # Customize labels and title
+    ax.set_xlabel('Categories')
+    ax.set_ylabel('Value Count')
+    ax.set_title('Vertical barplot')
+
+
+def horizontal_barplot(data, ax):
+    '''
+    Something like df[feature].value_counts() should be useful for a categorical variable for example
+        :param data: pandas Series where every value is bar. The index will be used to name each of the bars
+        :param ax: axis to make the plot
+    '''
+    # Make the plot
+    ax.barh(data.index, data.values, orientation='horizontal')
+
+    # Customize labels and title
+    ax.set_xlabel('Value Count')
+    ax.set_ylabel('Categories')
+    ax.set_title('Horizontal barplot')
+
+
+def single_stackedbar_plot(data, ax):
+    '''
+    Something like df[feature].value_counts() should be useful for a categorical variable for example
+        :param data: pandas Series where every value is bar. The index will be used to name each of the bars
+        :param ax: axis to make the plot
+    '''
+
+    # Store the different categories names
+    categories = data.index
+
+    bottom = 0
+
+    # Create the stacked bar chart
+    for i, value in enumerate(data.values):
+        ax.bar(1.5, value, bottom=bottom, label=categories[i], width=1.5)
+
+        # Add a text with the specific amount
+        ax.text(1.5,  bottom + value / 2, str(value), ha='center', va='center', color='white',
+                fontweight='bold')
+
+        bottom += value  # Update the bottom position for stacking
+
+    # Remove xticks
+    ax.set_xticks([])
+
+    # Activate legend
+    ax.legend(title='categories', fontsize='x-small')
+
+    # Set axes limits
+    ax.set_xlim(0, 3)
+    ax.set_ylim(0, data.sum() + data.sum() * 0.3)
+
+    # Customize axis labels and title
+    ax.set_ylabel('Value counts')
+    ax.set_title('Stacked barplot')
+
+def mosaic_plot(matrix_data, ax):
+    '''
+        :param matrix_data: pandas dataframe or Series where every variable must be Categorical
+        :param ax: axis to make the plot
+    '''
+
+    # Store all feature names in a list
+    features = matrix_data.columns.tolist()
+
+    # Obtain how many times each combination apears
+    mosaic_data = matrix_data.groupby(features).size()
+
+    # Custom labelizer: do not show anything if it has 0 values
+    def dataframe_labelizer(x):
+        if mosaic_data[x] == 0:
+            return ''
+        else:
+            return ('\n ').join(x)
+
+    def series_labelizer(x):
+        if mosaic_data[x[0]] == 0:
+            return ''
+        else:
+            return ('\n ').join(x)
+
+    # Make the plot
+    if type(mosaic_data) == pd.DataFrame:
+        mosaic(mosaic_data, title='Mosaic Plot', labelizer=dataframe_labelizer, ax=ax)
+    elif type(mosaic_data) == pd.Series:
+        mosaic(mosaic_data, title='Mosaic Plot', labelizer=series_labelizer, ax=ax)
+
+
+def tree_map_plot(data, ax):
+    '''
+    THIS METHOD STORES THE RESULT AS AN IMAGE. NO SINERGY WITH PYPLOT AXES
+        :param matrix_data: pandas dataframe or Series where every variable must be Categorical
+        :param ax: axis to make the plot
+    '''
+    # Store all feature names in a list
+    features = data.columns.tolist()
+
+    # Obtain how many times each combination apears
+    tree_map_data = data.groupby(features).size().reset_index(name='values')
+
+    # Create a treemap
+    fig = px.treemap(
+        tree_map_data,
+        path=features,  # Hierarchical paths
+        values='values',  # Values determine the size
+        title="Treemap visualization"
+    )
+
+    fig.write_image("treemap_plot.png")
+
+
+def paralel_set_plot(data):
+    '''
+    THIS METHOD STORES THE RESULT AS AN IMAGE. NO SINERGY WITH PYPLOT AXES
+        :param matrix_data: pandas dataframe or Series where every variable must be Categorical
+        :param ax: axis to make the plot
+    '''
+
+    features = data.columns.to_list()
+
+    # OPTIONAL - You need a column indication color of the sample
+    #data['color'] = df[feature].map(feature_to_color_dict)
+
+    # Create the parallel sets plot
+    fig = px.parallel_categories(
+        df,
+        dimensions=features,
+        # color='color',  # Optional: assign a constant color for all links
+        labels=features,
+        title='Parallel set visualization'
+    )
+
+    # Show the plot
+    fig.write_image('paralel_set_plot.png')
+
+
+def density_comparison_matrix(data, plot_range=25):
+    '''
+    THIS METHOD STORES THE RESULT AS AN IMAGE. NO SINERGY WITH PYPLOT AXES
+        :param data: dataframe input with 3 cols. two first categorical, last one continous. First column in y axis, second in x axis
+        :return: density comparison matrix
+    '''
+    # Optionally share y-axis between more subplots
+    category_values = [data[column].unique() for column in data.columns[:-1]]
+
+    category_name = data.columns[0]
+    subcategory_name = data.columns[1]
+    continous_variable = data.columns[2]
+
+    total_distribution_elements = len(data)
+
+    # Create plot
+    fig, axes = plt.subplots(len(category_values[0]), len(category_values[1]), figsize=(16,6), sharex=True, sharey=True)
+
+    for i, category in enumerate(category_values[0]):
+        for j, subcategory in enumerate(category_values[1]):
+            # In every cell, plot the general distribution
+            sns.kdeplot(data[continous_variable], ax=axes[i,j], fill=True, color='lightgrey', linewidth=2, label='Full distribution')
+            # Obtain the subset of the data
+            data_subset = data.loc[(data[category_name] == category) & (df[subcategory_name] == subcategory), continous_variable]
+
+            axes[i,j].set_ylabel(category)
+            axes[i, j].set_xlabel(subcategory)
+
+            if len(data_subset) == 0:
+                # If there is no values, dont plot anything
+                continue
+            elif len(data_subset) == 1:
+                # If there is only one point, plot a vertical line
+                axes[i,j].vlines(data_subset, ymin=0, ymax=0.01)
+                continue
+            # If there is more than one element, plot the distribution
+            # Obtain scale factor
+            scale_factor = len(data_subset)/total_distribution_elements
+            # Obtain kde from the subset
+            kde_subset = gaussian_kde(data_subset)
+            # Obtain x and y values to plot
+            x_vals = np.linspace(data_subset.min() - plot_range, data_subset.max() + plot_range, 100)
+            y_vals = kde_subset(x_vals)
+
+            # Plot the scaled subset density
+            axes[i,j].fill_between(x_vals, y_vals * scale_factor, color='blue', alpha=0.6, linewidth=3)
+
+            #ax1.set_title(f'{distrib1.name} Distribution')
+
+    # Set a single x and y label for the entire figure
+    fig.supylabel(category_name, fontsize=14)
+    fig.supxlabel(subcategory_name, fontsize=14)
+    fig.suptitle('Density comparation matrix')
+
+    # Save the figure
+    fig.tight_layout()
+    fig.savefig('Visualizing_Density_Comparison.png')
+
+
+def frequency_plot(probability, ax, grid_size = 10):
+    '''
+        :param prob: probability (0.1-1)
+        :param ax: axis to make the frequency plot
+    '''
+    total_squares = grid_size ** 2
+    colored_squares = int(probability * total_squares)
+
+    # Create an array with 1s (colored) and 0s (not colored) based on probability
+    squares = np.zeros(total_squares) + 0.3
+    squares[:colored_squares] = 1
+    np.random.shuffle(squares)  # Shuffle to distribute colored squares randomly
+
+    # Reshape the array to a grid
+    grid = squares.reshape((grid_size, grid_size))
+
+    # Plot the grid
+    sns.heatmap(grid, ax=ax, cmap=["white", "blue"], linewidths=0.5, linecolor='gray',
+                cbar=False, square=True, xticklabels=False, yticklabels=False)
+
+    # Set plot limits to ensure the entire grid is shown
+    ax.set_xlim(0, grid_size+0.1)
+    ax.set_ylim(-0.1, grid_size)
+
+    # Title with probability
+    ax.set_title(f"Probability: {probability * 100:.1f}%")
+
+def error_bar_plot(data, ax):
+    '''
+        :param data: pandas DataFrame or Series with continous values. Each column will be a different bar
+        :param ax: axis to make the error bar plot
+    '''
+    # Obtain mean from the data for the bar plot
+    data_average = data.mean(axis=0)
+
+    # Obtain sample standard error as a measure of error
+    bar_error = data.std(axis=0)
+
+    label = data_average.index if type(data)==pd.DataFrame else data.name
+
+    # Make the barplot
+    ax.bar(label, data_average, yerr=bar_error, capsize=5)
+
+    # Rotate labels
+    ax.set_xticklabels(label, rotation=45, ha='right')
+
+    ax.set_title('Error bar plot')
+
+
+
 from project.read_data import obtain_dataset
 
 # obtain data
 # Pivot data so bike types are column names, and consumption are values
+#df = obtain_dataset()
+#df = df.pivot(columns='bike type', values='consumption')
+#df = df.iloc[:,1]
+
 df = obtain_dataset()
-df = df.pivot(columns='bike type', values='consumption')
-df = df.iloc[:,1]
+df = df[['bike type', 'weight full', 'acceleration']]
+#df['acceleration'] = pd.cut(df['acceleration'], bins=(0, 25, 1000), labels=['fast', 'slow']).fillna('slow') # Nulls are slow bikes
+#weight_continous = df[['acceleration', 'bike type', 'weight full']].copy()
+#df['weight full'] = pd.cut(df['weight full'], bins=(0,150,1000), labels=['light', 'heavy'])
+
+
+# Any bike that does not reach 100 km/h (null values) is considered slow
+#df.loc[df['acceleration'].isnull(), 'acceleration'] = 'slow'
+df = df[['weight full']]
 
 fig, ax = plt.subplots()
-sina_plot(df, ax)
+error_bar_plot(df, ax)
 fig.tight_layout()
 fig.show()
 
-
-
-
-    
 
 

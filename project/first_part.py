@@ -323,9 +323,9 @@ def color_powerpoint():
 
     # Histogram comparison
     aux = df.loc[df['bike type'] == 'Trail', ['name', 'price']]
-    histogram_color_comparison(aux['price'], aux['name'],1, 'project/Images/Visualizing histogram color effect.png')
+    histogram_color_comparison(aux['price'], aux['name'],1, 'Images/Visualizing histogram color effect.png')
 
-color_powerpoint()
+
 
 def different_amounts_visualization():
     def grouped_bars_plot(matrix_data, ax):
@@ -707,7 +707,7 @@ def visualizing_multiple_distributions():
         ax.legend()
 
         # Remove x-ticks on the negative side and format labels correctly
-        ax.set_xticks([int(abs(tick)) for tick in ax.get_xticks()])
+        ax.set_xticks(ax.get_xticks(), [int(abs(tick)) for tick in ax.get_xticks()])
         ax.set_xlabel('Values')
 
     full_df = obtain_dataset()
@@ -735,7 +735,7 @@ def visualizing_multiple_distributions():
 
     fig.tight_layout()
 
-    fig.savefig('project/Images/Visualizing_multiple_distributions.png')
+    fig.savefig('Images/Visualizing_multiple_distributions.png')
 
     # Clean plot
     plt.clf()
@@ -1546,7 +1546,6 @@ def visualizing_dimensionality_reduction():
 
     PC_plot(pca_X, pca_y)
 
-visualizing_dimensionality_reduction()
 
 def visualizing_more_time_series():
 
@@ -1611,15 +1610,4 @@ def visualizing_more_time_series():
         fig.savefig('project/Images/divide_time_series.png')
 
 
-    df = obtain_dataset()
-
-    connected_scatterplot_data = df[['weight full', 'gasoline capacity']]
-    connected_scatterplot_data = connected_scatterplot_data.dropna(how='any')
-
-    components_data = df['price'].dropna(how='any')
-
-    connected_scatterplot(connected_scatterplot_data.iloc[:7])
-
-    divide_time_series_into_components(components_data)
-
-
+visualizing_multiple_distributions()
