@@ -5,21 +5,17 @@ from itertools import chain
 
 # Import visualization libraries
 import seaborn as sns
-from joypy import joyplot
 import plotly.express as px
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 from matplotlib.ticker import MaxNLocator
-from matplotlib.lines import Line2D
 from matplotlib.patches import Ellipse
 from matplotlib.animation import FuncAnimation, PillowWriter
 
 # Import math libraries
 from scipy.stats import probplot, gaussian_kde, t
 
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 
 from statsmodels.graphics.mosaicplot import mosaic
 from statsmodels.tsa.seasonal import seasonal_decompose
@@ -105,36 +101,48 @@ def color_scatterplot(x, y, color_variable, ax):
     ax.set_ylabel(y.name)
     ax.set_title('Scatterplot with color-encoded continous variable')
 
-def buble_chart(x, y, size_variable, ax):
+
+
+def bubble_chart(x, y, size_variable, ax):
     '''
-        x: pandas series to plot on x axis
-        y: pandas series to plot on y axis
-        size_variable: pandas series to plot as a continous variable using size
-        ax: pyplot ax to plot the visualization in
+    x: pandas series to plot on x axis
+    y: pandas series to plot on y axis
+    size_variable: pandas series to plot as a continous variable using size
+    ax: pyplot ax to plot the visualization in
     '''
-    # Obtain min and max for scailing
-    size_min = size_variable.min()
-    size_max = size_variable.max()
 
-    # Obtain colors from continous variable
-    sizes = (size_variable - size_min) / (size_max - size_min) * 500 + 10  # Normalize values and *500 for adequate size
+    # Obtain maximum value for size variable
+    max_size = size_variable.max()
 
-    # Scatterplot with torque, weight and seat height
-    ax.scatter(x, y, s=sizes, edgecolor='k')
+    # Normalize and create adequate buble sizes
+    sizes = size_variable / max_size * 500 # * 500 for adequate buble sizes
 
-    # Add axis labels and title
+    # Create the plot
+    ax.scatter(x, y, s=sizes, edgecolors='k', lw=0.4)
+
+    # Add a legend for bubble sizes
+    size_values = [max_size * factor for factor in [0.25, 0.5, 0.75, 1.0]]  # Example size values
+    size_labels = [f"{val:.1f}" for val in size_values]
+    size_markers = [val / max_size * 500 for val in size_values]  # Match normalization for legend
+
+    for size, label in zip(size_markers, size_labels):
+        ax.scatter([], [], s=size, edgecolors='k', lw=0.4, color='steelblue', label=f"Size: {label}")
+
+    ax.legend(title=size_variable.name, title_fontsize=10, fontsize=8,  labelspacing=1.5)
+
+    # Format the axes
+    ax.set_title('Buble chart plot')
     ax.set_xlabel(x.name)
     ax.set_ylabel(y.name)
-    ax.set_title('Scatterplot with color-encoded continous variable')
+
 
 
 def grouped_bars_plot(matrix_data, ax):
-    '''
+    ''' Pivot table + aggfunc=size will probe useful
     :param matrix_data: Matrix where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
         make sure rows have string index with the name of the feature they are measuring
     :param ax: axis to make the plot
     '''
-    # pivot_table with aggfunc=size is very useful for this format
 
     # Set the positions for the bars on the x-axis
     bar_width = 0.2  # Width of the bars
@@ -164,12 +172,12 @@ def grouped_bars_plot(matrix_data, ax):
 
 
 def stackedbars_plot(matrix_data, ax):
-    '''
+    ''' pivot_table with aggfunc="size" is very useful for this format
     :param matrix_data: Matrix where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
         make sure rows have string index with the name of the feature they are measuring. shape ngroups, n_features
     :param ax: axis to make the plot
     '''
-    # pivot_table with aggfunc=size is very useful for this format
+
     # Define variables
     n_categories = len(matrix_data.index)
     n_subcategories = len(matrix_data.columns)
@@ -295,7 +303,7 @@ def quantile_quantile_plot(data, ax):
 
 def box_plot(data, ax):
     '''
-        :param data: pandas DataFrame or Series where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
+        :param data: pandas DataFrame or Series where every column is a distribution to make a box plot of
         :param ax: axis to make the plot
     '''
     # Transform data for the plot
@@ -481,8 +489,7 @@ def overlapping_density_plot(data, ax):
     ax.set_ylabel('Density')
     ax.set_xlabel('Values')
 
-
-def desity_plot_comparison(data1, data2, ax1, ax2, flexibility=5):
+def density_plot_comparison(data1, data2, ax1, ax2, flexibility=5):
     '''
     Plots the general distributions of two data sets, alongside each independent distribution part of the whole
         :param data1: pandas Series to plot on ax1
@@ -491,12 +498,15 @@ def desity_plot_comparison(data1, data2, ax1, ax2, flexibility=5):
         :param ax2: axis to make the data2 plot
         :param flexibility: Set the limit to distribution visualization. It will help avoid cutting the plots
     '''
+    # Clean data from nulls
+    clean_data1 = data1.dropna()
+    clean_data2 = data2.dropna()
     # Join the yaxis
     # Optionally share y-axis between more subplots
     ax1.sharey(ax2)
 
     # Obtain general distribution
-    distribution = pd.concat([data1, data2])
+    distribution = pd.concat([clean_data1, clean_data2])
 
     # Plot general distribution in both axes:
     # Create density plot (With Seaborn!)
@@ -504,30 +514,30 @@ def desity_plot_comparison(data1, data2, ax1, ax2, flexibility=5):
     sns.kdeplot(distribution, ax=ax2, fill=True, color='lightgrey', linewidth=2, label='Full distribution')
 
     # Obtain density scaling factor for each distribution
-    scale_factor1 = len(data1) / len(distribution)
+    scale_factor1 = len(clean_data1) / len(distribution)
     scale_factor2 = 1 - scale_factor1
 
     # For distribution1:
-    kde_distrib1 = gaussian_kde(data1)
+    kde_distrib1 = gaussian_kde(clean_data1)
 
     # Generate the X values for the kde plot
-    x_vals = np.linspace(data1.min()-1, data1.max()+1, 100)
+    x_vals = np.linspace(clean_data1.min()-1, clean_data1.max()+1, 100)
     y_vals = kde_distrib1(x_vals)
 
     # Plot the distribution 1, scaled down by the factor
     ax1.fill_between(x_vals, y_vals * scale_factor1, color='blue', alpha=0.6, linewidth=3)
-    ax1.set_title(f'{data1.name} Distribution')
+    ax1.set_title(f'{clean_data1.name} Distribution')
 
     # For distribution2:
-    kde_distrib2 = gaussian_kde(data2)
+    kde_distrib2 = gaussian_kde(clean_data2)
 
     # Generate the X values for the kde plot
-    x_vals = np.linspace(data2.min() - flexibility, data2.max()+ flexibility, 100)
+    x_vals = np.linspace(clean_data2.min() - flexibility, clean_data2.max()+ flexibility, 100)
     y_vals = kde_distrib2(x_vals)
 
     # Plot the distribution 2, scaled down by the factor
     ax2.fill_between(x_vals, y_vals * scale_factor2, color='blue', alpha=0.6, linewidth=3)
-    ax2.set_title(f'{data2.name} Distribution')
+    ax2.set_title(f'{clean_data2.name} Distribution')
 
     # Customize the plot
     # Add a shared title for the subplots
@@ -864,31 +874,470 @@ def error_bar_plot(data, ax):
 
     ax.set_title('Error bar plot')
 
+def graded_error_bar_plot(data, ax, ratio):
+    '''
+        :param data: pandas DataFrame or Series with continous values. Each column will be a different graded bar
+        :param ax: axis to make the graded error bar plot
+        :param ratio: Measures the height between bars. Different value ranges will need different ratios
+    '''
+    def calculate_confidence_interval(data, confidence=0.95):
+        mean_std = data.sem()
+        critical_value = t.ppf(1 - (1 - confidence) / 2, len(data) - 1)
+        error_margin = critical_value * mean_std
+        return error_margin
+
+    # Plot each graded confidence interval as a layered bar
+    for i, column in enumerate(data.columns):
+        # Obtain the variable from the dataframe
+        df = data[column]
+
+        # Obtain statistical information
+        mean = df.mean()
+        ci80 = calculate_confidence_interval(df, confidence=0.80)
+        ci95 = calculate_confidence_interval(df, confidence=0.95)
+        ci99 = calculate_confidence_interval(df, confidence=0.99)
+        # Plot the 99% confidence interval and plot limit lines for every bar
+        ax.barh(i*ratio, 2 * ci99, left=mean - ci99, color='skyblue', edgecolor='black', height=0.05,
+                label='99% CI' if i == 0 else "")
+        ax.plot([mean - ci99, mean - ci99], [i*ratio - 0.05, i*ratio + 0.05], color='black', linewidth=1.5)
+        ax.plot([mean + ci99, mean + ci99], [i*ratio - 0.05, i*ratio + 0.05], color='black', linewidth=1.5)
+        # Plot the 95% confidence interval and plot limit lines for every bar
+        ax.barh(i*ratio, 2 * ci95, left=mean - ci95, color='cornflowerblue', edgecolor='black', height=0.1,
+                label='95% CI' if i == 0 else "")
+        ax.plot([mean - ci95, mean - ci95], [i*ratio - 0.075, i*ratio + 0.075], color='black', linewidth=1.5)
+        ax.plot([mean + ci95, mean + ci95], [i*ratio - 0.075, i*ratio + 0.075], color='black', linewidth=1.5)
+        # Plot the 80% confidence interval and plot limit lines for every bar
+        ax.barh(i*ratio, 2 * ci80, left=mean - ci80, color='royalblue', edgecolor='black', height=0.15,
+                label='80% CI' if i == 0 else "")
+        ax.plot([mean - ci80, mean - ci80], [i*ratio - 0.1, i*ratio + 0.1], color='black', linewidth=1.5)
+        ax.plot([mean + ci80, mean + ci80], [i*ratio - 0.1, i*ratio + 0.1], color='black', linewidth=1.5)
+
+        # Plot the mean value as a vertical line
+        ax.plot([mean, mean], [i*ratio - 0.15, i*ratio + 0.15], color='black', linewidth=1.5)
+
+    # Plot mean values using a scatterplot
+    mean_values = data.mean(axis=0)
+    ax.scatter(mean_values, np.arange(len(mean_values)) *ratio, color='orange', marker='o', s=150)
+
+    # Label and ticks
+    ax.set_yticks(np.arange(len(data.columns))*ratio)
+    ax.set_yticklabels(data.columns)
+    ax.set_xlabel('Value')
+    ax.set_title('Graded Error Bars with Confidence Intervals')
+
+    # Add a legend
+    ax.legend(loc='upper right')
+
+def quantile_dot_plot(data, ax, total_dots, cols):
+    '''
+        :param data: pandas Series with continous values to make the dot plot
+        :param ax: axis to make the graded error bar plot
+        :param Total_dots: Total dots to represent the entire distribution
+        :param cols: Number of dot columns
+    '''
+    # Define quantiles (25% and 75%)
+    quantile_25 = data.quantile(0.25)
+    quantile_75 = data.quantile(0.75)
+
+    # Plot density curve
+    sns.kdeplot(data, ax=ax, fill=True, color="lightgray", alpha=0.5, linewidth=2)
+
+    # Generate bin edges and midpoints
+    x_min, x_max = data.min(), data.max()
+    bin_edges = np.linspace(x_min, x_max, cols + 1)
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+    # Calculate the number of dots per bin based on data distribution
+    bin_counts = pd.cut(data, bins=bin_edges).value_counts().sort_index()
+
+    # Radius in x-units for the circles
+    radius = (bin_edges[1] - bin_edges[0]) / 2  # Adjusted to fit within each bin
+    diameter = radius * 2
+
+    # Recompute aspect ratio after fixing limits
+    x_range = ax.get_xlim()[1] - ax.get_xlim()[0]
+    y_range = ax.get_ylim()[1] - ax.get_ylim()[0]
+    aspect_ratio = (y_range * 1.05) / x_range
+
+    # Fix the y-axis range to prevent dynamic resizing and calculate aspect_ratio
+    ax.set_xlim(x_min, x_max)
+    ax.set_ylim(0, y_range * 1.05)
+
+    # Helper function to determine the color of a dot based on its x position
+    def get_color(x):
+        if x <= quantile_25:
+            return "yellow"
+        elif x <= quantile_75:
+            return "lightblue"
+        else:
+            return "blue"
+
+    # Plot the grid of dots
+    for i, center in enumerate(bin_centers):
+        color = get_color(center)
+
+        # Proportion of dots in this bin based on data distribution
+        proportion = bin_counts.iloc[i] / len(data)  # Fraction of data in this bin
+        num_dots = int(proportion * total_dots)  # Number of dots for this bin
+
+        for j in range(num_dots):
+            # Calculate y positions with fixed scaling
+            y_position = diameter * aspect_ratio * (2 * j + 1)
+
+            # Plot the dot as a perfect circle with height adjusted by aspect_ratio
+            circle = Ellipse(
+                (center, y_position),
+                width=diameter,
+                height=diameter * aspect_ratio * 2,
+                color=color,
+                edgecolor='black',
+                lw=0.5
+            )
+            ax.add_patch(circle)
+
+    # Adjust plot aesthetics
+    ax.set_title("Quantile Dot Plot")
+    ax.set_xlabel("Value")
+    ax.axvline(quantile_25, color='gray', linestyle='--', linewidth=1)
+    ax.axvline(quantile_75, color='gray', linestyle='--', linewidth=1)
 
 
-from project.read_data import obtain_dataset
 
-# obtain data
-# Pivot data so bike types are column names, and consumption are values
-#df = obtain_dataset()
-#df = df.pivot(columns='bike type', values='consumption')
-#df = df.iloc[:,1]
+def hyphothetical_outcome_plot(data1, data2, sample_size):
+    '''
+        :param data1: pandas Series with continous values for upper bar values
+        :param data1: pandas Series with continous values for lower bar values
+        :param sample_size: number of pairs to make the plot with
+    '''
 
-df = obtain_dataset()
-df = df[['bike type', 'weight full', 'acceleration']]
-#df['acceleration'] = pd.cut(df['acceleration'], bins=(0, 25, 1000), labels=['fast', 'slow']).fillna('slow') # Nulls are slow bikes
-#weight_continous = df[['acceleration', 'bike type', 'weight full']].copy()
-#df['weight full'] = pd.cut(df['weight full'], bins=(0,150,1000), labels=['light', 'heavy'])
+    # Create plot
+    fig, ax = plt.subplots()
+
+    # Set vertical line positions
+    y1 = 1
+    y2 = 2
+
+    ax.set_ylim(0, 3)
+
+    # Set vertical bar size
+    ybar_size = 0.25
+
+    # Set ax ticks
+    ax.set_yticks([y1, y2], [data1.name, data2.name])
+
+    # Set x limits to max and min from the data (Matplotlib doesn't update it automatically)
+    xmax = max(chain(data1, data2))
+    xmin = min(chain(data1, data2))
+
+    range = (xmax - xmin) * 0.15
+    ax.set_xlim(xmin - range, xmax + range)
+
+    # Draw horizontal bars
+    ax.grid(which='major', axis='y', lw=3)
+
+    # Initialize vertical lines
+    line1, = ax.plot([], [], 'r-', lw=5)  # Vertical line for bar 1
+    line2, = ax.plot([], [], 'r-', lw=5)  # Vertical line for bar 2
+
+    # Title
+    ax.set_title("Hypothetical outcome plot")
+    ax.set_xlabel('Feature values')
+
+    sample1 = np.random.choice(data1, sample_size)
+    sample2 = np.random.choice(data2, sample_size)
+
+    # Update function for animation
+    def update(frame):
+        # Update vertical lines
+        line1.set_data([sample1[frame], sample1[frame]], [y1 - ybar_size, y1 + ybar_size])  # Sample data 1 bar
+        line2.set_data([sample2[frame], sample2[frame]], [y2 - ybar_size, y2 + ybar_size])  # Sample data 2 bar
+        return line1, line2
+
+    # Create animation
+    anim = FuncAnimation(fig, update, frames=sample_size, interval=500, blit=False)
+
+    # Save as GIF
+    anim.save("project/Images/hypothetical_outcome_plot.gif", writer=PillowWriter(fps=2))
+    plt.close()
 
 
-# Any bike that does not reach 100 km/h (null values) is considered slow
-#df.loc[df['acceleration'].isnull(), 'acceleration'] = 'slow'
-df = df[['weight full']]
 
-fig, ax = plt.subplots()
-error_bar_plot(df, ax)
-fig.tight_layout()
-fig.show()
 
+def ordered_scatter_plot(data, ax):
+    """
+    Makes a scatterplot where every value is in its own independent line, ordered incrementally
+    :param data: Pandas Series or Dataframe with 2 columns (First continous, second catgorical) to plot
+    :param ax: axes to make the plot
+    """
+
+    # Obtain y values for every point and set max y limit
+    y_values = np.arange(len(data))
+    ax.set_ylim(-1, len(data))
+
+    # Set grid lines and delete ylabels for everypoint
+    ax.set_yticks(y_values, [])
+    ax.grid(which='major', axis='y', zorder=0)
+
+    # make the scatterplot
+    if isinstance(data, pd.Series):
+        # Order the data
+        ordered_data = data.sort_values()
+        # Plot the values
+        ax.scatter(ordered_data, y_values, s=50, color=None, zorder=2)
+
+    elif isinstance(data, pd.DataFrame):
+        # Order the data
+        ordered_data = data.sort_values(by=data.columns[0])
+
+        # Map every category (second column) to a color automatically
+        categories = data.iloc[:,1].unique()
+        palette = sns.color_palette("Set1", len(categories))  # Use a Set1 palette for distinct colors
+        color_map = {category: palette[i] for i, category in enumerate(categories)}
+        colors = data.iloc[:,1].map(color_map)
+
+        # Plot the values
+        ax.scatter(ordered_data.iloc[:,0], y_values, s=50, color=colors, zorder=2)
+
+        # Make a customized legend
+        handles = [
+            plt.Line2D([0], [0], marker="o", color=color, label=category, markersize=10, linestyle="None")
+            for category, color in color_map.items()
+        ]
+        plt.legend(handles=handles, title="Category", fontsize=12, title_fontsize=14)
+    else:
+        raise ValueError("Incorrect data type passed to ordered scatterplot")
+
+    # Add the legend with color information
+    #ax.legend(handles=legend, title="Legend")
+
+    # Set plot aesthetics
+    ax.set_xlabel('Feature values')
+    ax.set_title('Ordered scatter plot')
+
+def ordered_heatmap(df, ax, columns):
+    """
+    Creates a mean ordered heatmap
+    :param data:Pandas dataframe with two columns: First continous and second categorical. there will be as much rows as different category values
+    :param ax:Axis on which to plot make the plot
+    :param columns: Number of columns/splits along the x axis
+    """
+    # Transform the data for visualizations
+    data = [pd.Series(df[df.iloc[:,1]==category][df.columns[0]].dropna(), name=category) for category in df.iloc[:,1].unique()]
+
+    # Obtain data range
+    xmin = min(chain(*data))
+    xmax = max(chain(*data))
+
+    # Step 1: Define intervals and bin data
+    bins = np.linspace(xmin, xmax, columns)
+    binned_data = {
+        series.name: np.histogram(series, bins=bins)[0]
+        for series in data
+    }
+
+    # Step 2: Create a DataFrame from binned data
+    heatmap_data = pd.DataFrame(binned_data).T  # Transpose to get series as rows
+    heatmap_data.columns = [f'>{int(range)}' for range in bins[:-1]]
+
+    # Step 3: Sort rows based on series means
+    heatmap_data['Series_means'] = [series.mean() for series in data]
+    heatmap_data = heatmap_data.sort_values('Series_means', ascending=False).drop(columns='Series_means')
+
+    # Step 4: Plot the heatmap
+    sns.heatmap(
+        heatmap_data,
+        cmap="YlGnBu",
+        ax=ax,
+        cbar_kws={'label': 'Count'},
+        linewidths=0.5
+    )
+    ax.set_title("Heatmap of Series by Interval Counts")
+    ax.set_xlabel("Intervals")
+    ax.set_ylabel("Series")
+
+
+
+def correlogram(df, ax):
+    """
+    Makes a correlation plot based on the variables from the dataframe. Ensure they all are continous
+    :param df: dataframe with all variables wanted to make a correlogram plot
+    :param ax: axis to make the plot
+    """
+
+    # Obtain variables correlation
+    correlation = df.corr()
+
+    # Obtain the size and labels of the matrix
+    n_variables, _ = correlation.shape
+    labels = correlation.columns
+
+    # Flatten the correlation matrix to a 1D array
+    correlation = correlation.to_numpy().flatten()
+
+    # Obtain x and y coordinate values
+    # Step 1: Obtain the x and y coordinates of every point in the scatter. Here, first param are the row values and second the column values
+    x_values, y_values = np.meshgrid(np.arange(n_variables), np.arange(n_variables)[::-1])
+    # Step 2: Flatten the resulting coordinates
+    x_values, y_values = x_values.ravel(), y_values.ravel()
+
+    # Obtain sizes for the scatterplot
+    sizes = np.abs(correlation) * 1000
+
+    # Obtain colors for the scatterplot
+    colors = plt.cm.coolwarm((correlation + 1)/2) # normalize from 0 to 1 values
+
+    # Create the correlogram using scatter
+    ax.scatter(x_values, y_values, s=sizes, color=colors, edgecolors="k", lw=0.5 )
+
+    # Set limits for the plot to be correctly seen
+    ax.set_xlim(-0.5, n_variables - 0.5)
+    ax.set_ylim(-0.5, n_variables -0.5)
+
+    # Format axes
+    ax.set_xticks(range(n_variables))
+    ax.set_yticks(range(n_variables))
+    ax.set_xticklabels(labels, rotation=45, ha='left')
+    ax.set_yticklabels(labels[::-1])
+    ax.xaxis.tick_top()  # Move x-axis labels to the top
+
+    # Add a colorbar
+    sm = plt.cm.ScalarMappable(cmap='coolwarm', norm=plt.Normalize(vmin=-1, vmax=1))
+    sm.set_array([])
+    cbar = plt.colorbar(sm, ax=ax)
+    cbar.set_label('Correlation Coefficient')
+
+    ax.set_title('Correlogram plot', pad=20)
+
+
+
+def scatterplot_matrix(data):
+    """ NO AX- DEPENDS ON THE SHAPE OF THE DATA
+    Makes a correlation scatterplot matrix: one scatterpplot for every pair f variables in the dataframe
+        :param df: Pandas dataframe with continous values
+        :param ax: axis to make the plot
+    """
+    # Obtain labels and number of variables
+    labels = data.columns
+    n_variables = len(labels)
+
+    # Create the plot
+    fig, axes = plt.subplots(n_variables, n_variables, figsize=(n_variables*2, n_variables*2))
+
+    for i, x_label in enumerate(labels):
+        for j, y_label in enumerate(labels):
+            # Obtain the value of each feature
+            x_data = data[x_label]
+            y_data = data[y_label]
+
+            # Make a scatterplot on the corresponding axes
+            axes[j, i].scatter(x_data, y_data, edgecolors='k', lw=0.2)
+
+            # Set axis labels if nbecessary
+            if i == 0:
+                axes[j, i].set_ylabel(y_label)
+
+            if j == n_variables-1:
+                axes[j, i].set_xlabel(x_label)
+
+    # Set suptitle
+    fig.suptitle('Scatterplot matrix')
+
+    # Save the image
+    fig.tight_layout()
+    fig.show()
+
+
+def slopegraph(data, ax):
+    """
+    :param data: Pandas dataframe with continous values. As much columns as stages in the slopegraph
+    :param ax: axis to make the plot
+    """
+    # Obtain shape
+    n_rows, n_columns = data.shape
+
+    # Plot each row as a time series
+    for i in range(n_rows):
+        # Plot the sample as a time series
+        ax.plot(data.iloc[i], marker='o')
+
+        # Set the name of each plot right in last column
+        ax.text(n_columns-1 + 0.1, data.iloc[i, -1], f'Sample {i}', fontsize=10, ha='left', va='center')
+
+
+    ax.set_xticks(np.arange(n_columns), data.columns) # Format ticks
+    ax.set_title('Slopegraph plot')
+    ax.set_ylabel('Slopegraph Units')
+
+    # Deactivate black box lines (spines)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+
+
+def connected_scatterplot(data, ax, label_offset=(0.5,0.5)):
+    """
+    :param data: Pandas dataframe with 2 columns. First will be x and second will be y values
+    :param ax: axis to make the plot
+    :param label_offset: tuple (x,y) offset to plot the label respective to every point
+    """
+    # Obtain data from dataframe
+    labels = [f'Step {i + 1}' for i in range(len(data))] # Example labels
+    x = data.iloc[:,0]
+    y = data.iloc[:,1]
+
+    # Plot the connected scatterplot
+    ax.plot(x, y, marker='o', linestyle='-', color='blue', label='Path')
+
+    # Plot the labels asociated with each point
+    for i, label in enumerate(labels):
+        ax.text(x.iloc[i] + label_offset[0], y.iloc[i] + label_offset[1], label, fontsize=8, ha='center')
+
+    # Format the axes
+    ax.set_title("Connected Scatterplot")
+    ax.set_xlabel(x.name)
+    ax.set_ylabel(y.name)
+    ax.grid(alpha=0.3)
+    # ax.legend() Dont add legend with just one
+
+
+def divide_time_series_into_components(data):
+    """
+    NO AX- IT REQUIRES 4 AXES SPECIFICALLY THE DATA IN
+    :param data: Pandas Series to decompose into components trend, seasonality and noise
+    """
+
+    # Clean nan values
+    clean_data = data.dropna()
+
+    # Perform seasonal decomposition
+    result = seasonal_decompose(clean_data, model='additive', period=10)  # Assuming monthly seasonality (30 days)
+
+    # Extract trend, seasonal fluctuations and noise
+    trend = result.trend
+    seasonal_fluctuations = result.seasonal
+    noise = result.resid
+
+    # Create the plot
+    fig, axes = plt.subplots(4,1, figsize=(6, 8))
+
+    # Plot original Data
+    axes[0].plot(clean_data)
+    axes[0].set_title('Original data')
+
+    # Plot trend
+    axes[1].plot(trend)
+    axes[1].set_title('Trend')
+
+    # Plot seasonal fluctuations
+    axes[2].plot(seasonal_fluctuations)
+    axes[2].set_title('Seasonal fluctuations')
+
+    # Plot noise
+    axes[3].plot(noise)
+    axes[3].set_title('Noise')
+
+    fig.suptitle(f'{data.name} decomposition')
+    fig.tight_layout()
+    fig.savefig('project/Images/divide_time_series.png')
 
 
