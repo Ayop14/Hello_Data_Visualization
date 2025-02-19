@@ -982,7 +982,7 @@ def multiple_group_proportions_visualizations():
     
     df = obtain_dataset()
     df = df[['bike type', 'weight full', 'acceleration']]
-    df['acceleration'] = pd.cut(df['acceleration'], bins=(0, 25, 1000), labels=['fast', 'slow']).fillna('slow') # Nulls are slow bikes
+    df['acceleration'] = pd.cut(df['acceleration'], bins=(0, 25, 1000), labels=['fast', 'slow'])
     weight_continous = df[['acceleration', 'bike type', 'weight full']].copy()
     df['weight full'] = pd.cut(df['weight full'], bins=(0,150,1000), labels=['light', 'heavy'])
 

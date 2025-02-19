@@ -699,31 +699,24 @@ def mosaic_plot(matrix_data, ax):
     # Obtain how many times each combination apears
     mosaic_data = matrix_data.groupby(features).size()
 
-    # Custom labelizer: do not show anything if it has 0 values
-    def dataframe_labelizer(x):
-        if mosaic_data[x] == 0:
-            return ''
-        else:
-            return ('\n ').join(x)
-
-    def series_labelizer(x):
-        if mosaic_data[x[0]] == 0:
+    # Create labelizer
+    def labelizer(x):
+        N = mosaic_data.get(x,0)
+        if N == 0:
             return ''
         else:
             return ('\n ').join(x)
 
     # Make the plot
-    if type(mosaic_data) == pd.DataFrame:
-        mosaic(mosaic_data, title='Mosaic Plot', labelizer=dataframe_labelizer, ax=ax)
-    elif type(mosaic_data) == pd.Series:
-        mosaic(mosaic_data, title='Mosaic Plot', labelizer=series_labelizer, ax=ax)
+    mosaic(mosaic_data, title='Mosaic Plot', labelizer=labelizer, ax=ax, properties={'color': 'white'})
 
 
-def tree_map_plot(data, ax):
+
+def tree_map_plot(data, file_path):
     '''
     THIS METHOD STORES THE RESULT AS AN IMAGE. NO SINERGY WITH PYPLOT AXES
         :param matrix_data: pandas dataframe or Series where every variable must be Categorical
-        :param ax: axis to make the plot
+        :param file_path: path to store the resulting image. Must include the file name and file type (png)
     '''
     # Store all feature names in a list
     features = data.columns.tolist()
@@ -739,14 +732,14 @@ def tree_map_plot(data, ax):
         title="Treemap visualization"
     )
 
-    fig.write_image("treemap_plot.png")
+    fig.write_image(file_path)
 
 
-def paralel_set_plot(data):
+def paralel_set_plot(data, file_path):
     '''
     THIS METHOD STORES THE RESULT AS AN IMAGE. NO SINERGY WITH PYPLOT AXES
         :param matrix_data: pandas dataframe or Series where every variable must be Categorical
-        :param ax: axis to make the plot
+        :param file_path: path to store the resulting image. Must include the file name and file type (png)
     '''
 
     features = data.columns.to_list()
@@ -756,7 +749,7 @@ def paralel_set_plot(data):
 
     # Create the parallel sets plot
     fig = px.parallel_categories(
-        df,
+        data,
         dimensions=features,
         # color='color',  # Optional: assign a constant color for all links
         labels=features,
@@ -764,13 +757,15 @@ def paralel_set_plot(data):
     )
 
     # Show the plot
-    fig.write_image('paralel_set_plot.png')
+    fig.write_image(file_path)
 
 
-def density_comparison_matrix(data, plot_range=25):
+def density_comparison_matrix(data, file_path, plot_range=25):
     '''
     THIS METHOD STORES THE RESULT AS AN IMAGE. NO SINERGY WITH PYPLOT AXES
         :param data: dataframe input with 3 cols. two first categorical, last one continous. First column in y axis, second in x axis
+        :param file_path: path to store the resulting image. Must include the file name and file type (png)
+        :param plot_range:
         :return: density comparison matrix
     '''
     # Optionally share y-axis between more subplots
@@ -790,7 +785,7 @@ def density_comparison_matrix(data, plot_range=25):
             # In every cell, plot the general distribution
             sns.kdeplot(data[continous_variable], ax=axes[i,j], fill=True, color='lightgrey', linewidth=2, label='Full distribution')
             # Obtain the subset of the data
-            data_subset = data.loc[(data[category_name] == category) & (df[subcategory_name] == subcategory), continous_variable]
+            data_subset = data.loc[(data[category_name] == category) & (data[subcategory_name] == subcategory), continous_variable]
 
             axes[i,j].set_ylabel(category)
             axes[i, j].set_xlabel(subcategory)
@@ -823,7 +818,7 @@ def density_comparison_matrix(data, plot_range=25):
 
     # Save the figure
     fig.tight_layout()
-    fig.savefig('Visualizing_Density_Comparison.png')
+    fig.savefig(file_path)
 
 
 def frequency_plot(probability, ax, grid_size = 10):
@@ -1003,7 +998,7 @@ def quantile_dot_plot(data, ax, total_dots, cols):
 
 
 
-def hyphothetical_outcome_plot(data1, data2, sample_size):
+def hyphothetical_outcome_plot(data1, data2, sample_size, file_path):
     '''
         :param data1: pandas Series with continous values for upper bar values
         :param data1: pandas Series with continous values for lower bar values
@@ -1057,7 +1052,7 @@ def hyphothetical_outcome_plot(data1, data2, sample_size):
     anim = FuncAnimation(fig, update, frames=sample_size, interval=500, blit=False)
 
     # Save as GIF
-    anim.save("project/Images/hypothetical_outcome_plot.gif", writer=PillowWriter(fps=2))
+    anim.save(file_path, writer=PillowWriter(fps=2))
     plt.close()
 
 
@@ -1210,11 +1205,11 @@ def correlogram(df, ax):
 
 
 
-def scatterplot_matrix(data):
+def scatterplot_matrix(data, file_path):
     """ NO AX- DEPENDS ON THE SHAPE OF THE DATA
     Makes a correlation scatterplot matrix: one scatterpplot for every pair f variables in the dataframe
         :param df: Pandas dataframe with continous values
-        :param ax: axis to make the plot
+        :param file_path: Path to store the figure result (Including folder, file name and file type (.png))
     """
     # Obtain labels and number of variables
     labels = data.columns
@@ -1244,7 +1239,7 @@ def scatterplot_matrix(data):
 
     # Save the image
     fig.tight_layout()
-    fig.show()
+    fig.savefig(file_path)
 
 
 def slopegraph(data, ax):
@@ -1300,7 +1295,7 @@ def connected_scatterplot(data, ax, label_offset=(0.5,0.5)):
     # ax.legend() Dont add legend with just one
 
 
-def divide_time_series_into_components(data):
+def divide_time_series_into_components(data, file_path):
     """
     NO AX- IT REQUIRES 4 AXES SPECIFICALLY THE DATA IN
     :param data: Pandas Series to decompose into components trend, seasonality and noise
@@ -1338,6 +1333,6 @@ def divide_time_series_into_components(data):
 
     fig.suptitle(f'{data.name} decomposition')
     fig.tight_layout()
-    fig.savefig('project/Images/divide_time_series.png')
+    fig.savefig(file_path)
 
 
