@@ -207,7 +207,7 @@ def stackedbars_plot(matrix_data, ax):
 
 def heatmap_plot(matrix_data, ax):
     '''
-        :param matrix_data: Matrix where every row is a category (group of bars), each column is a subcategory/feature to measure about the group (individual bar, the blue one for example)
+        :param matrix_data: Matrix where every row will be a row of the heatmap, and columns will be the columns of the heatmap
             make sure rows have string index with the name of the feature they are measuring. shape ngroups, n_features
         :param ax: axis to make the plot
     '''
