@@ -254,7 +254,7 @@ plt.close()
 fig, ax = plt.subplots()
 
 # Make the plot
-aux = df['bike type'].value_counts()
+aux = df['bike type']
 piechart(aux, ax)
 
 # Format and store the image
@@ -267,7 +267,7 @@ plt.close()
 fig, ax = plt.subplots()
 
 # Make the plot
-aux = df['bike type'].value_counts()
+aux = df['bike type']
 vertical_barplot(aux, ax)
 
 # Format and store the image
@@ -280,7 +280,7 @@ plt.close()
 fig, ax = plt.subplots()
 
 # Make the plot
-aux = df['bike type'].value_counts()
+aux = df['bike type']
 horizontal_barplot(aux, ax)
 
 # Format and store the image

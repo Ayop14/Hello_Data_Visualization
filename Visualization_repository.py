@@ -600,11 +600,14 @@ def piechart(data, ax):
         :param data: pandas Series where every value is a slice of the pie. The index will be used to name the values
         :param ax: axis to make the plot
     '''
+    # Obtain value counts to plot
+    aux = data.value_counts()
+
     # Plot the pie chart
     _, _, autotexts = ax.pie(
-        data,
-        labels=data.index,
-        autopct=lambda pct: f'{int(pct * sum(data) / 100)}',  # Shows exact amounts
+        aux,
+        labels=aux.index,
+        autopct=lambda pct: f'{int(pct * sum(aux) / 100)}',  # Shows exact amounts
         startangle=90
     )
 
@@ -623,12 +626,14 @@ def vertical_barplot(data, ax):
         :param data: pandas Series where every value is bar. The index will be used to name each of the bars
         :param ax: axis to make the plot
     '''
+    # Obtain value counts to plot
+    aux = data.value_counts()
 
     # Make the plot
-    ax.bar(data.index, data.values, orientation='vertical')
+    ax.bar(aux.index, aux.values, orientation='vertical')
 
     # Customize xticks
-    ax.set_xticklabels(data.index, rotation=45, ha='right')
+    ax.set_xticklabels(aux.index, rotation=45, ha='right')
 
     # Customize labels and title
     ax.set_xlabel('Categories')
@@ -642,8 +647,11 @@ def horizontal_barplot(data, ax):
         :param data: pandas Series where every value is bar. The index will be used to name each of the bars
         :param ax: axis to make the plot
     '''
+    # Obtain value counts to plot
+    aux = data.value_counts()
+
     # Make the plot
-    ax.barh(data.index, data.values, orientation='horizontal')
+    ax.barh(aux.index, aux.values, orientation='horizontal')
 
     # Customize labels and title
     ax.set_xlabel('Value Count')
