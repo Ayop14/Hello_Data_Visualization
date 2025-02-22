@@ -13,7 +13,7 @@ It does not require any visualization parameters.
 
 Parameters are a pandas series to plot and ax to make the plot in. 
 
-[**Code**](Visualization_repository.py#L274-301)
+[**Code**](Visualization_repository.py#L274-L301)
 
 ## Paralel set plot
 
@@ -84,7 +84,7 @@ Great way to show a small set of features from independent entities. Do not use 
 
 Parameters are a matrix where every row is a category, and column a subcategory. Pivot_table + aggfunc=Size will be useful. AQnd ax to plot.
 
-[**Code**](Visualization_repository.py#L140-L171)
+[**Code**](Visualization_repository.py#L174-L205)
 
 ## Vertical plot
 
@@ -94,7 +94,7 @@ Provides details of specific amounts
 
 Parameters are a pandas categorical series to plot. (Doesnt have to be category type) 
 
-[**Code**](Visualization_repository.py#L304-L335)
+[**Code**](Visualization_repository.py#L623-L641)
 
 ## Horizontal plot
 
