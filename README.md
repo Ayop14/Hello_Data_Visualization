@@ -196,7 +196,7 @@ Detailed way to display the relations between a bunch of variables.
 
 Parameters are a dataframe with continous values, where every column will be a variable. And a file path to be stored. 
 
-[**Code**](Visualization_repository.py#L1208-L1242)
+[**Code**](Visualization_repository.py#L1219-L1253)
 
 ## Connected Scatterplot visualization
 
@@ -206,7 +206,7 @@ Compare the temporal relations between two variables
 
 Parameters are a dataframe with 2 columns, first will be x second y. An ax to make the plot, and optionally a tuple to display label offset.
 
-[**Code**](Visualization_repository.py#L1272-L1295)
+[**Code**](Visualization_repository.py#L1283-L1306)
 
 # ***Heatmaps***
 
@@ -228,7 +228,7 @@ Great way to show a huge amount of data, with an ordered axis and the number of 
 
 Parameters are a pandas series to plot and the number of times to go around the axis
 
-[**Code**](Visualization_repository.py#L1112-L1151)
+[**Code**](Visualization_repository.py#L1123-L1162)
 
 ## Mosaic Plot
 
@@ -248,7 +248,7 @@ Shows how categorical values divide into different groups
 
 Parameters are a pandas dataframe where every column must be a categorical variable and file path to store the resultin image
 
-[**Code**](Visualization_repository.py#L726-L7746)
+[**Code**](Visualization_repository.py#L726-L746)
 
 
 # ***Density plots***
