@@ -53,7 +53,7 @@ Divides a time series in trend, seasonality and noise
 
 Parameters a pandas series to decompose, and a file path to store the resulting visualization in 
 
-[**Code**](Visualization_repository.py#L1166-L1215)
+[**Code**](Visualization_repository.py#L1309-L1347)
 
 # ***Bar plots***
 ## Histogram 
