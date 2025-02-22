@@ -293,7 +293,7 @@ plt.close()
 fig, ax = plt.subplots()
 
 # Make the plot
-aux = df['bike type'].value_counts()
+aux = df['bike type']
 single_stackedbar_plot(aux,ax)
 
 # Format and store the image
@@ -329,6 +329,8 @@ tree_map_plot(aux, 'Images/Tree_map_plot.png')
 # Make the plot
 aux = df[['bike type', 'max speed']].copy()
 aux['max speed'] = pd.cut(aux['max speed'], bins = [0,105,100000], labels = ['slow', 'fast'])
+# Replace NaNs with "unknown"
+aux['max speed'] = aux['max speed'].cat.add_categories('unknown').fillna('unknown')
 paralel_set_plot(aux, 'Images/Parallel_set_plot.png')
 
 
@@ -435,7 +437,7 @@ fig, ax = plt.subplots()
 
 # Make the plot
 aux = df[['weight full', 'price', 'acceleration', 'max speed', 'gasoline capacity', 'torque']]
-ordered_scatter_plot(aux, ax)
+correlogram(aux, ax)
 
 # Format and store the image
 fig.tight_layout()

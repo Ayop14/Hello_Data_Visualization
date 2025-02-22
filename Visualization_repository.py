@@ -662,17 +662,20 @@ def horizontal_barplot(data, ax):
 def single_stackedbar_plot(data, ax):
     '''
     Something like df[feature].value_counts() should be useful for a categorical variable for example
-        :param data: pandas Series where every value is bar. The index will be used to name each of the bars
+        :param data: pandas Series with categorical variable
         :param ax: axis to make the plot
     '''
 
+    # Obtain value counts to plot
+    aux = data.value_counts()
+
     # Store the different categories names
-    categories = data.index
+    categories = aux.index
 
     bottom = 0
 
     # Create the stacked bar chart
-    for i, value in enumerate(data.values):
+    for i, value in enumerate(aux.values):
         ax.bar(1.5, value, bottom=bottom, label=categories[i], width=1.5)
 
         # Add a text with the specific amount
@@ -689,7 +692,7 @@ def single_stackedbar_plot(data, ax):
 
     # Set axes limits
     ax.set_xlim(0, 3)
-    ax.set_ylim(0, data.sum() + data.sum() * 0.3)
+    ax.set_ylim(0, aux.sum() + aux.sum() * 0.3)
 
     # Customize axis labels and title
     ax.set_ylabel('Value counts')

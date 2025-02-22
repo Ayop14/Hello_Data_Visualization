@@ -6,13 +6,54 @@ This file is meant to be a summary of all visualizations created, as well as the
 
 ## Quantile-quantile plot
 
-![Quantile dot plot](Images/Quantile_dot_plot.png)
+![Quantile quantile plot](Images/Quantile_quantile_plot.png)
 
 It can be used to assess wether or not data follows a certain distribution or not.  
+It does not require any visualization parameters.
 
 Parameters are a pandas series to plot and ax to make the plot in. 
 
 [**Code**](Visualization_repository.py#L274-301)
+
+## Paralel set plot
+
+![Paralel set plot](Images/Parallel_set_plot.png)
+
+Shows how categorical values divide into different groups 
+
+Parameters are a pandas dataframe where every column must be a categorical variable and a file path to store the resulting visualization
+
+[**Code**](Visualization_repository.py#L749-L771)
+
+## Correlogram plot
+
+![Correlogram](Images/Correlogram_plot.png)
+
+Displays the correlations between variables in a intuitive way
+
+Parameters are a dataframe with continous variables, where every column is a variable, and ax to make the plot in. 
+
+[**Code**](Visualization_repository.py#L1166-L1215)
+
+## Slopegraph plot
+
+![Slopegraph](Images/Slopegraph.png)
+
+Displays the evolution of a variable depending on time or another categorical value
+
+Parameters are a dataframe with continous values. Each column will be a stage in the slopegraph and ax to make the plot in 
+
+[**Code**](Visualization_repository.py#L1256-L1279)
+
+## Divide time series into components
+
+![Divide time series into components](Images/Time_series_into_components.png)
+
+Divides a time series in trend, seasonality and noise
+
+Parameters a pandas series to decompose, and a file path to store the resulting visualization in 
+
+[**Code**](Visualization_repository.py#L1166-L1215)
 
 # ***Bar plots***
 ## Histogram 
@@ -64,6 +105,36 @@ Provides details of specific amounts. Alternative to vertical when labels are a 
 Parameters are a pandas categorical series to plot. (Doesnt have to be category type) 
 
 [**Code**](Visualization_repository.py#L644-L659)
+
+## Single stacked bar plot
+
+![Single stacked bar plot](Images/Single_stacked_bar_plot.png)
+
+Provides details of specific amounts. Great alternative when one amount is 0. 
+
+Parameters are a pandas categorical series to plot. (Doesnt have to be category type) 
+
+[**Code**](Visualization_repository.py#L662-L699)
+
+## Error bar plot
+
+![Error bar plot](Images/Error_bar_plot.png)
+
+Provides details of specific amounts, while also displaying uncertainity in the variable.  
+
+Parameters are a pandas continous series to plot and an ax to make the plot in 
+
+[**Code**](Visualization_repository.py#L862-L881)
+
+## Graded Error Bar plot
+
+![graded Error Bar plot](Images/Graded_error_bar_plot.png)
+
+Provides details of specific distributions and quantiles, while also displaying uncertainity in the variable.  
+
+Parameters are a pandas continous series to plot, an ax to make the plot in and ratio, a variable to control bar height 
+
+[**Code**](Visualization_repository.py#L883-L935)
 
 ## Piechart plot
 
@@ -151,13 +222,33 @@ Parameters are a matrix where every row is a category (Row of the heatmap), and 
 
 ## Ordered Heatmap
 
-![Ordered heatmap](Images/Polar_plot.png)
+![Ordered heatmap](Images/Ordered_heatmap_plot.png)
 
 Great way to show a huge amount of data, with an ordered axis and the number of columns/intervals the data is goinng to be divided by. 
 
 Parameters are a pandas series to plot and the number of times to go around the axis
 
 [**Code**](Visualization_repository.py#L1112-L1151)
+
+## Mosaic Plot
+
+![Mosaic plot](Images/Mosaic_plot.png)
+
+Shows how categorical values divide into different groups 
+
+Parameters are a pandas dataframe where every column must be a categorical variable
+
+[**Code**](Visualization_repository.py#L701-L722)
+
+## Tree Map Plot
+
+![Mosaic plot](Images/Tree_map_plot.png)
+
+Shows how categorical values divide into different groups 
+
+Parameters are a pandas dataframe where every column must be a categorical variable and file path to store the resultin image
+
+[**Code**](Visualization_repository.py#L726-L7746)
 
 
 # ***Density plots***
@@ -241,7 +332,27 @@ Compares two segments of a distribution as a whole, providing insight of the dif
 
 Parameters are a two pandas series or Series to plot and the two axes to plot them in. Flexibility adds margin to the x limits of the plot. 
 
-[**Code**](Visualization_repository.py#L492-548)
+[**Code**](Visualization_repository.py#L492-L548)
+
+## Density Comparison Matrix
+
+![Density Comparison Matrix](Images/Density_comparison_matrix.png)
+
+Presents the distribution of a continuos variable against two categorical, against the full distribution
+
+Parameters are a dataframe with 3 cols, two first categorical, third continous, and a file path to store the resulting image 
+
+[**Code**](Visualization_repository.py#L774-L832)
+
+## Quantile Dot Plot
+
+![Quantile Dot Plot](Images/Quantile_dot_plot.png)
+
+Provides a intuitive quantitative visualization of probability and the distribution
+
+Parameters are a pandas series with continous variables, ax to make the plot, total number of dots to add in the figure, and number of columns.  
+
+[**Code**](Visualization_repository.py#L937-L1008)
 
 # ***Other case specific visualizations***
 ## Age pyramid plot
@@ -253,3 +364,26 @@ Divides a distribution by a variable. commonly used for age
 Parameters are two pandas series or Series to plot an ax to make the plot in and the number of groups (divisions) to make on the y axis. 
 
 [**Code**](Visualization_repository.py#L552-L597)
+
+## Frequency plot
+
+![Frequency plot](Images/Frequency_plot.png)
+
+Provides a visual representation of a probability
+
+Parameters are a probability (0-1), an ax to make the plot, and optionally the grid size of the plot.  
+
+[**Code**](Visualization_repository.py#L835-L860)
+
+## Hypothetical Outcome plot
+
+![Hypothetical outcome plot](Images/Hyphothetical_outcome_plot.gif)
+
+Provides a visual representation of a probability using examples from the distribution.
+When using it, make sure random selection get an accurate representation of the data. If 80% of one distribution is higher, have 5 figures with 4 being higher.
+
+Parameters are two pandas series with continous values, the amount of pictures to show, and the file path to store the resulting image  
+
+[**Code**](Visualization_repository.py#L1012-L1067)
+
+
