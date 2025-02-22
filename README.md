@@ -186,7 +186,7 @@ Good to compare categorical with continous data. It solves the problem of very h
 
 Parameters are three independent x,y and color variable pandas Series to plot and an ax to make the visualization
 
-[**Code**](Visualization_repository.py#L1061-L1110)
+[**Code**](Visualization_repository.py#L1072-L1121)
 
 ## Scatterplot Matrix visualization
 
